@@ -239,6 +239,7 @@ def gengallery(base, mdfiles):
         img = index.new_tag('img')
         img.attrs['src'] = thumbpath
         img.attrs['alt'] = ''
+        img.attrs['title'] = md['title']
         img.attrs['width'] = str(thumbsize[0])
         img.attrs['height'] = str(thumbsize[1])
         a = index.new_tag('a')
