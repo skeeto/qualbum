@@ -1,5 +1,5 @@
 ---
-title: Yellow
+title: Cyan
 date: 2017-09-25 13:23:57-04:00
 f-stop: f/5.6
 exposure-time: 1/400 sec
