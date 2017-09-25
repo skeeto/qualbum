@@ -9,7 +9,7 @@ from glob import glob
 from PIL import Image
 
 # Load site configuration
-with open('_config.yaml', 'r') as file:
+with open('_config.yaml', 'r', encoding='utf-8') as file:
     config = yaml.load(file)
 title = config['title']
 author = config['author']
@@ -52,7 +52,7 @@ def link(a, b):
     os.link(a, b)
 
 def loadmeta(file):
-    with open(file, 'r') as md:
+    with open(file, 'r', encoding='utf-8') as md:
         lines = [md.readline()]
         while True:
             line = md.readline()
@@ -70,14 +70,14 @@ def getpagepath(md):
     return '/' + os.path.splitext(md['file'])[0] + '/'
 
 # Load the index template
-index = BeautifulSoup(open('_index.html'), 'lxml')
+index = BeautifulSoup(open('_index.html', encoding='utf-8'), 'lxml')
 index_title = index.select('title')[0]
 index_gallery = index.select('#gallery')[0]
 index_h1 = index.select('#title')[0]
 index_h1.string = title
 
 # Load the image page template
-single = BeautifulSoup(open('_single.html'), 'lxml')
+single = BeautifulSoup(open('_single.html', encoding='utf-8'), 'lxml')
 single_title = single.select('title')[0]
 single_full = single.select('#full')[0]
 single_img = single.select('#photo')[0]
@@ -91,7 +91,7 @@ single_exposure = single.select('#exposure-time')[0]
 single_iso = single.select('#iso')[0]
 
 # Load the feed template
-feed = BeautifulSoup(open('_feed.xml'), 'xml')
+feed = BeautifulSoup(open('_feed.xml', encoding='utf-8'), 'xml')
 feed_feed = feed.select('feed')[0]
 feed_title = feed.select('title')[0]
 feed_author = feed.select('author name')[0]
@@ -150,7 +150,7 @@ for md in mdfiles:
 def gengallery(base, mdfiles):
     conffile = base[1:] + '/_gallery.yaml'
     if os.path.exists(conffile):
-        with open(conffile, 'r') as file:
+        with open(conffile, 'r', encoding='utf-8') as file:
             conf = yaml.load(file)
         gallery_title = conf['title'] + ' » ' + title
     elif base == '/':
@@ -232,7 +232,7 @@ def gengallery(base, mdfiles):
                 single_iso.string = ''
             indexfile = output + pagepath + 'index.html';
             mkdir_p(output + pagepath)
-            with open(indexfile, 'w') as file:
+            with open(indexfile, 'w', encoding='utf-8') as file:
                 file.write(single.prettify())
 
         # Create link in gallery
@@ -249,12 +249,12 @@ def gengallery(base, mdfiles):
 
     # Write out generated index
     indexfile = output + base + '/index.html'
-    with open(indexfile, 'w') as file:
+    with open(indexfile, 'w', encoding='utf-8') as file:
         file.write(index.prettify())
 
     # Write out generated feed
     mkdir_p(output + base + 'feed')
-    with open(output + base + 'feed/index.xml', 'w') as file:
+    with open(output + base + 'feed/index.xml', 'w', encoding='utf-8') as file:
         file.write(feed.prettify())
 
 for base, mdfiles in galleries.items():
