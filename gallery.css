@@ -1,0 +1,135 @@
+body.gallery {
+    font-family: sans-serif;
+}
+
+.gallery header {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: #ddf;
+    padding: 0;
+    text-align: center;
+    height: 38px;
+    border-bottom: 1px solid #aaa;
+    box-shadow: 0 0 10px #555;
+}
+
+.gallery header h1 {
+    margin: 0;
+    padding: 3px;
+    font-size: 24px;
+    color: #557;
+}
+
+#gallery {
+    margin: 44px auto 0 auto;
+    text-align: center;
+    max-width: 1300px;
+}
+
+#gallery a {
+    text-decoration: none;
+}
+
+#gallery img {
+    margin: 10px;
+    padding: 0;
+    border: 0;
+    box-shadow: 0px 0px 10px gray;
+    background-color: gray;
+}
+
+#gallery img:hover {
+    box-shadow: 0px 0px 20px gray;
+    transform: scale(1.02);
+}
+
+body.single {
+    font-family: sans-serif;
+    text-align: center;
+    overflow-y: scroll;
+}
+
+.single header {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+    background-color: red;
+    max-width: 100%;
+    width: 300px;
+}
+
+.single header a {
+    height: 20px;
+    font-size: 30px;
+    text-decoration: none;
+    color: #77f;
+}
+
+.single header .next {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.single header .prev {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.single header .home {
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    font-size: 40px;
+}
+
+.single a.nav[href="#"] {
+    visibility: hidden;
+}
+
+.single #title {
+    width: 1000px;
+    max-width: 100%;
+    margin: 10px auto 5px auto;
+}
+
+.single time {
+    font-size: 80%;
+    color: #777;
+    font-style: italic;
+}
+
+.single ul#meta {
+    margin: 4px auto;
+    padding: 0;
+    color: #444;
+}
+
+.single #meta li {
+    display: inline-block;
+    margin: 0;
+    padding: 0 5px 0 0;
+    font-style: italic;
+}
+
+.single #info {
+    max-width: 600px;
+    text-align: justify;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.single img#photo {
+    width: 1000px;
+    max-width: 100%;
+    max-height: 90vh;
+    margin: 40px 0 0 0;
+    padding: 0;
+    box-shadow: 0px 0px 10px gray;
+    background-color: gray;
+}
