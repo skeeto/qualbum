@@ -253,8 +253,8 @@ def gengallery(base, mdfiles):
         file.write(index.prettify())
 
     # Write out generated feed
-    mkdir_p(output + base + 'feed')
-    with open(output + base + 'feed/index.xml', 'w', encoding='utf-8') as file:
+    mkdir_p(output + base + '/feed')
+    with open(output + base + '/feed/index.xml', 'w', encoding='utf-8') as file:
         file.write(feed.prettify())
 
 for base, mdfiles in galleries.items():
