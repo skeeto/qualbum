@@ -42,6 +42,29 @@ body.gallery {
     padding: 0;
 }
 
+#gallery li {
+    position: relative;
+    display: inline-block;
+    list-style-type: none;
+    overflow: hidden;
+}
+
+#gallery li h2 {
+    position: absolute;
+    box-sizing: border-box;
+    text-align: left;
+    bottom: 0;
+    left: 0;
+    display: inline-block;
+    width: 300px;
+    padding: 0 0 0 20px;
+    color: white;
+    font-size: 22px;
+    font-weight: normal;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+    pointer-events: none;
+}
+
 .gallery a {
     text-decoration: none;
     color: #44f;
@@ -73,8 +96,11 @@ body.gallery {
     background-color: gray;
 }
 
-#gallery img:hover {
+#gallery img {
     box-shadow: 0px 0px 20px gray;
+}
+
+#gallery li:hover {
     transform: scale(1.02);
 }
 

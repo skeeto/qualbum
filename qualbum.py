@@ -263,6 +263,10 @@ def gengallery(base, mdfiles):
                 file.write(single.prettify())
 
         # Create link in gallery
+        li = gallery.new_tag('li')
+        h2 = gallery.new_tag('h2')
+        h2.string = md['title']
+        li.append(h2)
         img = gallery.new_tag('img')
         img.attrs['src'] = thumbpath
         img.attrs['alt'] = ''
@@ -272,7 +276,8 @@ def gengallery(base, mdfiles):
         a = gallery.new_tag('a')
         a.attrs['href'] = pagepath;
         a.append(img)
-        gallery_gallery.append(a)
+        li.append(a)
+        gallery_gallery.append(li)
 
     # Write out generated index
     indexfile = output + base + '/index.html'
