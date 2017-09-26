@@ -78,10 +78,15 @@ body.gallery {
     transform: scale(1.02);
 }
 
-body.single {
+html.single {
     font-family: sans-serif;
-    text-align: center;
     overflow-y: scroll;
+}
+
+html.single,
+body.single {
+    height: 100%;
+    margin: 0;
 }
 
 .single header {
@@ -126,8 +131,6 @@ body.single {
 }
 
 .single #title {
-    width: 1000px;
-    max-width: 100%;
     margin: 10px auto 5px auto;
 }
 
@@ -157,12 +160,25 @@ body.single {
     margin-right: auto;
 }
 
-.single img#photo {
-    width: 1000px;
+.single article {
+    display: block;
+    height: 100%;
+    margin: 56px auto 0 auto;
+    text-align: center;
+}
+
+.single #photo {
+    display: block;
+    width: auto;
+    height: auto;
     max-width: 100%;
-    max-height: 90vh;
-    margin: 40px 0 0 0;
+    max-height: 85%;
     padding: 0;
+    margin: 0 auto;
     box-shadow: 0px 0px 10px gray;
     background-color: gray;
+}
+
+.single #title {
+    margin-top: 14px;
 }
