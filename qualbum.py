@@ -90,6 +90,14 @@ single_fstop = single.select('#f-stop')[0]
 single_exposure = single.select('#exposure-time')[0]
 single_iso = single.select('#iso')[0]
 
+# Load the album listing template
+listing = BeautifulSoup(open('_listing.html', encoding='utf-8'), 'lxml')
+listing_title = listing.select('title')[0]
+listing_title.string = site_title
+listing_listing = listing.select('#listing')[0]
+listing_h1 = listing.select('#title')[0]
+listing_h1.string = site_title
+
 # Load the feed template
 feed = BeautifulSoup(open('_feed.xml', encoding='utf-8'), 'xml')
 feed_feed = feed.select('feed')[0]
@@ -145,6 +153,25 @@ for md in mdfiles:
     if not galleries.get(base):
         galleries[base] = []
     galleries[base].append(md)
+
+for name in sorted(galleries.keys()):
+    if name != '/':
+        a = listing.new_tag('a')
+        conffile = base[1:] + '/_gallery.yaml'
+        if os.path.exists(conffile):
+            with open(conffile, 'r', encoding='utf-8') as file:
+                a.string = yaml.load(file)['title']
+        else:
+            a.string = {'title': name}
+        a.attrs['href'] = name + '/'
+        li = listing.new_tag('li')
+        li.append(a)
+        listing_listing.append(li)
+
+listing_path = output + '/albums'
+mkdir_p(listing_path)
+with open(listing_path + '/index.html', 'w', encoding='utf-8') as file:
+    file.write(listing.prettify())
 
 # Generate a new gallery
 def gengallery(base, mdfiles):
