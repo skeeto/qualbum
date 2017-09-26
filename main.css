@@ -7,12 +7,12 @@ body.gallery {
     left: 0;
     top: 0;
     width: 100%;
-    background: #ddf;
+    background: Beige;
     padding: 0;
     text-align: center;
     height: 46px;
-    border-bottom: 1px solid #aaa;
-    box-shadow: 0 0 10px #555;
+    box-shadow: 0 0 10px DarkGray;
+    border-bottom: 1px solid BlanchedAlmond;
 }
 
 .gallery .container {
@@ -27,7 +27,7 @@ body.gallery {
     font-weight: normal;
     padding: 3px;
     font-size: 24px;
-    color: #557;
+    color: #545569;
     vertical-align: top;
 }
 
