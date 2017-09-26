@@ -10,16 +10,40 @@ body.gallery {
     background: #ddf;
     padding: 0;
     text-align: center;
-    height: 38px;
+    height: 46px;
     border-bottom: 1px solid #aaa;
     box-shadow: 0 0 10px #555;
 }
 
+.gallery .container {
+    margin: 0 auto;
+    width: 600px;
+}
+
 .gallery header h1 {
-    margin: 0;
+    text-align: left;
+    display: inline-block;
+    margin: 0 40px 0 0;
     padding: 3px;
     font-size: 24px;
     color: #557;
+    vertical-align: top;
+}
+
+.gallery header ul {
+    text-align: right;
+    font-size: 14px;
+    display: inline-block;
+    list-style-type: none;
+    width: 100px;
+    height: 40px;
+    margin: 4px 0 0 0;
+    padding: 0;
+}
+
+.gallery a {
+    text-decoration: none;
+    color: #44f;
 }
 
 #listing {
@@ -31,7 +55,7 @@ body.gallery {
 }
 
 #gallery {
-    margin: 44px auto 0 auto;
+    margin: 60px auto 0 auto;
     text-align: center;
     max-width: 1300px;
 }

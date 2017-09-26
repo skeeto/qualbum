@@ -179,16 +179,16 @@ def gengallery(base, mdfiles):
     if os.path.exists(conffile):
         with open(conffile, 'r', encoding='utf-8') as file:
             conf = yaml.load(file)
-        title = conf['title'] + ' » ' + site_title
+        title = conf['title']
     elif base == '/':
         title = site_title
     else:
-        title = base + ' » ' + site_title
+        title = base
 
     # Fill out gallery details
     for a in gallery_gallery.select('a'):
         a.decompose()
-    gallery_title.string = title
+    gallery_title.string = title + ' » ' + site_title
     gallery_h1.string = title
 
     # Fill out Atom feed details
