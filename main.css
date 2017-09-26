@@ -23,7 +23,8 @@ body.gallery {
 .gallery header h1 {
     text-align: left;
     display: inline-block;
-    margin: 0 40px 0 0;
+    margin: 2px 40px 0 0;
+    font-weight: normal;
     padding: 3px;
     font-size: 24px;
     color: #557;
