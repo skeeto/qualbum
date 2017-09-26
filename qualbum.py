@@ -154,6 +154,7 @@ for md in mdfiles:
         galleries[base] = []
     galleries[base].append(md)
 
+# Generate album listing
 for name in sorted(galleries.keys()):
     if name != '/':
         a = listing.new_tag('a')
@@ -167,7 +168,6 @@ for name in sorted(galleries.keys()):
         li = listing.new_tag('li')
         li.append(a)
         listing_listing.append(li)
-
 listing_path = output + '/albums'
 mkdir_p(listing_path)
 with open(listing_path + '/index.html', 'w', encoding='utf-8') as file:
