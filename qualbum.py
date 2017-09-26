@@ -11,7 +11,7 @@ from PIL import Image
 # Load site configuration
 with open('_config.yaml', 'r', encoding='utf-8') as file:
     config = yaml.load(file)
-title = config['title']
+site_title = config['title']
 author = config['author']
 baseurl = config['baseurl']
 output = config['output']
@@ -70,11 +70,11 @@ def getpagepath(md):
     return '/' + os.path.splitext(md['file'])[0] + '/'
 
 # Load the index template
-index = BeautifulSoup(open('_index.html', encoding='utf-8'), 'lxml')
-index_title = index.select('title')[0]
-index_gallery = index.select('#gallery')[0]
-index_h1 = index.select('#title')[0]
-index_h1.string = title
+gallery = BeautifulSoup(open('_gallery.html', encoding='utf-8'), 'lxml')
+gallery_title = gallery.select('title')[0]
+gallery_gallery = gallery.select('#gallery')[0]
+gallery_h1 = gallery.select('#title')[0]
+gallery_h1.string = site_title
 
 # Load the image page template
 single = BeautifulSoup(open('_single.html', encoding='utf-8'), 'lxml')
@@ -102,18 +102,18 @@ feed_id = feed.select('feed > id')[0]
 
 def feed_add(md):
     url = baseurl + getpagepath(md)
-    entry = index.new_tag('entry')
-    tag_title = index.new_tag('title')
+    entry = feed.new_tag('entry')
+    tag_title = feed.new_tag('title')
     tag_title.string = md['title']
-    tag_id = index.new_tag('id')
+    tag_id = feed.new_tag('id')
     tag_id.string = 'urn:uuid:' + str(uuid.uuid3(uuid.NAMESPACE_URL, url))
-    tag_link = index.new_tag('link')
+    tag_link = feed.new_tag('link')
     tag_link.attrs['rel'] = 'alternate'
     tag_link.attrs['type'] = 'text/html'
     tag_link.attrs['href'] = url
-    tag_updated = index.new_tag('updated')
+    tag_updated = feed.new_tag('updated')
     tag_updated.string = md['date'].isoformat()
-    tag_content = index.new_tag('content')
+    tag_content = feed.new_tag('content')
     tag_content.attrs['type'] = 'html'
     tag_content.string = str(md['content'])
     entry.append(tag_title)
@@ -152,20 +152,20 @@ def gengallery(base, mdfiles):
     if os.path.exists(conffile):
         with open(conffile, 'r', encoding='utf-8') as file:
             conf = yaml.load(file)
-        gallery_title = conf['title'] + ' » ' + title
+        title = conf['title'] + ' » ' + site_title
     elif base == '/':
-        gallery_title = title
+        title = site_title
     else:
-        gallery_title = base + ' » ' + title
+        title = base + ' » ' + site_title
 
     # Fill out gallery details
-    for a in index_gallery.select('a'):
+    for a in gallery_gallery.select('a'):
         a.decompose()
-    index_title.string = gallery_title
-    index_h1.string = gallery_title
+    gallery_title.string = title
+    gallery_h1.string = title
 
     # Fill out Atom feed details
-    feed_title.string = gallery_title
+    feed_title.string = title
     gallery_uuid = uuid.uuid3(uuid.NAMESPACE_URL, baseurl + base)
     feed_id.string = 'urn:uuid:' + str(gallery_uuid)
     for entry in feed.select('entry'):
@@ -236,21 +236,21 @@ def gengallery(base, mdfiles):
                 file.write(single.prettify())
 
         # Create link in gallery
-        img = index.new_tag('img')
+        img = gallery.new_tag('img')
         img.attrs['src'] = thumbpath
         img.attrs['alt'] = ''
         img.attrs['title'] = md['title']
         img.attrs['width'] = str(thumbsize[0])
         img.attrs['height'] = str(thumbsize[1])
-        a = index.new_tag('a')
+        a = gallery.new_tag('a')
         a.attrs['href'] = pagepath;
         a.append(img)
-        index_gallery.append(a)
+        gallery_gallery.append(a)
 
     # Write out generated index
     indexfile = output + base + '/index.html'
     with open(indexfile, 'w', encoding='utf-8') as file:
-        file.write(index.prettify())
+        file.write(gallery.prettify())
 
     # Write out generated feed
     mkdir_p(output + base + '/feed')
