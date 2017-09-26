@@ -46,7 +46,6 @@ body.gallery {
     position: relative;
     display: inline-block;
     list-style-type: none;
-    overflow: hidden;
 }
 
 #gallery li h2 {
