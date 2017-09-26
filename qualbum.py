@@ -157,7 +157,7 @@ for md in mdfiles:
 for name in sorted(galleries.keys()):
     if name != '/':
         a = listing.new_tag('a')
-        conffile = base[1:] + '/_gallery.yaml'
+        conffile = name[1:] + '/_gallery.yaml'
         if os.path.exists(conffile):
             with open(conffile, 'r', encoding='utf-8') as file:
                 a.string = yaml.load(file)['title']
