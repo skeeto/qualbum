@@ -32,14 +32,44 @@ body.gallery {
 }
 
 .gallery header ul {
-    text-align: right;
-    font-size: 14px;
+    text-align: left;
+    font-size: 16px;
     display: inline-block;
     list-style-type: none;
     width: 100px;
     height: 40px;
     margin: 4px 0 0 0;
     padding: 0;
+}
+
+.gallery header li.icon.albums:before {
+    display: inline-block;
+    width: 14px;
+    height: 15px;
+    content: ' ';
+    background: url('/icons.svg') 0px 1px no-repeat;
+    background-size: 42px;
+    margin-right: 2px;
+}
+
+.gallery header li.icon.feed:before {
+    display: inline-block;
+    width: 14px;
+    height: 15px;
+    content: ' ';
+    background: url('/icons.svg') -14px 2px no-repeat;
+    background-size: 42px;
+    margin-right: 2px;
+}
+
+.gallery header li.icon.home:before {
+    display: inline-block;
+    width: 14px;
+    height: 15px;
+    content: ' ';
+    background: url('/icons.svg') -28px 2px no-repeat;
+    background-size: 42px;
+    margin-right: 2px;
 }
 
 #gallery li {
