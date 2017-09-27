@@ -199,6 +199,7 @@ for name in sorted(galleries.keys()):
         gallery_add(md, title=title, href=name + '/')
         feed_add(md, title=title, href=name + '/')
 
+# Write out albums HTML and feed
 listing_path = output + '/albums'
 mkdir_p(listing_path)
 with open(listing_path + '/index.html', 'w', encoding='utf-8') as file:
