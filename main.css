@@ -24,6 +24,9 @@ body.gallery {
     font-size: 24px;
     color: #545569;
     vertical-align: top;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .gallery header ul {
