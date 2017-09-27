@@ -69,7 +69,7 @@ def loadmeta(file):
 def getpagepath(md):
     return '/' + os.path.splitext(md['file'])[0] + '/'
 
-# Load the index template
+# Load the gallery template
 gallery = BeautifulSoup(open('_gallery.html', encoding='utf-8'), 'lxml')
 gallery_title = gallery.select('title')[0]
 gallery_gallery = gallery.select('#gallery')[0]
@@ -89,14 +89,6 @@ single_info = single.select('#info')[0]
 single_fstop = single.select('#f-stop')[0]
 single_exposure = single.select('#exposure-time')[0]
 single_iso = single.select('#iso')[0]
-
-# Load the album listing template
-listing = BeautifulSoup(open('_listing.html', encoding='utf-8'), 'lxml')
-listing_title = listing.select('title')[0]
-listing_title.string = site_title
-listing_listing = listing.select('#listing')[0]
-listing_h1 = listing.select('#title')[0]
-listing_h1.string = site_title
 
 # Load the feed template
 feed = BeautifulSoup(open('_feed.xml', encoding='utf-8'), 'xml')
@@ -154,24 +146,53 @@ for md in mdfiles:
         galleries[base] = []
     galleries[base].append(md)
 
+# Insert a new image into the gallery
+def galleryinsert(md, title=None, href=None):
+    pagepath = getpagepath(md)
+    if not title:
+        title = md['title']
+    if not href:
+        href = pagepath
+    thumbpath = pagepath + 'thumb.jpg'
+    li = gallery.new_tag('li')
+    h2 = gallery.new_tag('h2')
+    h2.string = title
+    li.append(h2)
+    img = gallery.new_tag('img')
+    img.attrs['src'] = thumbpath
+    img.attrs['alt'] = ''
+    img.attrs['title'] = title
+    img.attrs['width'] = str(thumbsize[0])
+    img.attrs['height'] = str(thumbsize[1])
+    a = gallery.new_tag('a')
+    a.attrs['href'] = href;
+    a.append(img)
+    li.append(a)
+    gallery_gallery.append(li)
+
 # Generate album listing
+gallery_title.string = 'List of Albums » ' + site_title
+gallery_h1.string = 'List of Albums'
 for name in sorted(galleries.keys()):
     if name != '/':
-        a = listing.new_tag('a')
+        md = galleries[name][-1]
         conffile = name[1:] + '/_gallery.yaml'
         if os.path.exists(conffile):
             with open(conffile, 'r', encoding='utf-8') as file:
-                a.string = yaml.load(file)['title']
+                conf = yaml.load(file)
+                title = conf['title']
+                if conf.get('image'):
+                    for image in galleries[name]:
+                        if image['title'] == conf['image']:
+                            md = image
         else:
-            a.string = {'title': name}
-        a.attrs['href'] = name + '/'
-        li = listing.new_tag('li')
-        li.append(a)
-        listing_listing.append(li)
+            title = name
+        galleryinsert(md, title=title, href=name + '/')
+
 listing_path = output + '/albums'
 mkdir_p(listing_path)
 with open(listing_path + '/index.html', 'w', encoding='utf-8') as file:
-    file.write(listing.prettify())
+    file.write(gallery.prettify())
 
 # Generate a new gallery
 def gengallery(base, mdfiles):
@@ -263,21 +284,7 @@ def gengallery(base, mdfiles):
                 file.write(single.prettify())
 
         # Create link in gallery
-        li = gallery.new_tag('li')
-        h2 = gallery.new_tag('h2')
-        h2.string = md['title']
-        li.append(h2)
-        img = gallery.new_tag('img')
-        img.attrs['src'] = thumbpath
-        img.attrs['alt'] = ''
-        img.attrs['title'] = md['title']
-        img.attrs['width'] = str(thumbsize[0])
-        img.attrs['height'] = str(thumbsize[1])
-        a = gallery.new_tag('a')
-        a.attrs['href'] = pagepath;
-        a.append(img)
-        li.append(a)
-        gallery_gallery.append(li)
+        galleryinsert(md)
 
     # Write out generated index
     indexfile = output + base + '/index.html'
