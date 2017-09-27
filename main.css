@@ -138,6 +138,7 @@ body.single {
     border-top: 20px solid transparent;
     border-bottom: 20px solid transparent;
     border-left: 30px solid #77f;
+    filter: drop-shadow(0 0 6px #777);
 }
 
 .single header .prev {
@@ -149,6 +150,7 @@ body.single {
     border-top: 20px solid transparent;
     border-bottom: 20px solid transparent;
     border-right: 30px solid #77f;
+    filter: drop-shadow(0 0 6px #777);
 }
 
 .single header .home {
@@ -161,6 +163,7 @@ body.single {
     border-left: 20px solid transparent;
     border-right: 20px solid transparent;
     border-bottom: 30px solid #77f;
+    filter: drop-shadow(0 0 6px #777);
 }
 
 .single a.nav[href="#"] {
