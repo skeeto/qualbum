@@ -195,6 +195,7 @@ body.single {
     text-align: justify;
     margin-left: auto;
     margin-right: auto;
+    padding: 0 10px;
 }
 
 .single article {
