@@ -228,7 +228,7 @@ def gengallery(base, mdfiles):
     gallery_h1.string = title
 
     # Fill out Atom feed details
-    feed_title.string = title
+    feed_title.string = title + ' » ' + site_title
     gallery_uuid = uuid.uuid3(uuid.NAMESPACE_URL, baseurl + base)
     feed_id.string = 'urn:uuid:' + str(gallery_uuid)
     for entry in feed.select('entry'):
