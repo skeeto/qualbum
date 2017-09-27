@@ -98,14 +98,6 @@ body.gallery {
     color: #44f;
 }
 
-#listing {
-    max-width: 700px;
-    font-size: 22px;
-    text-align: left;
-    margin: 60px auto 0 auto;
-    list-style-type: square;
-}
-
 #gallery {
     margin: 80px auto 0 auto;
     text-align: center;
