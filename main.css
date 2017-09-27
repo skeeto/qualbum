@@ -220,6 +220,10 @@ body.single {
     background-color: gray;
 }
 
+.single #full {
+    outline: 0;
+}
+
 .single #title {
     margin-top: 14px;
 }
