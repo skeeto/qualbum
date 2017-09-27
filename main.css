@@ -125,30 +125,42 @@ body.single {
 }
 
 .single header a {
-    height: 20px;
-    font-size: 30px;
+    display: block;
     text-decoration: none;
-    color: #77f;
 }
 
 .single header .next {
     position: absolute;
-    top: 0;
+    top: 10px;
     right: 0;
+    width: 0;
+    height: 0;
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-left: 30px solid #77f;
 }
 
 .single header .prev {
     position: absolute;
-    top: 0;
+    top: 10px;
     left: 0;
+    width: 0;
+    height: 0;
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-right: 30px solid #77f;
 }
 
 .single header .home {
     position: absolute;
-    top: -6px;
+    top: 10px;
     left: 50%;
     transform: translate(-50%, 0);
-    font-size: 40px;
+    width: 0;
+    height: 0;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-bottom: 30px solid #77f;
 }
 
 .single a.nav[href="#"] {
