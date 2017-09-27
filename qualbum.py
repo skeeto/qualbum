@@ -207,7 +207,7 @@ def gengallery(base, mdfiles):
         title = base
 
     # Fill out gallery details
-    for a in gallery_gallery.select('a'):
+    for a in gallery_gallery.select('li'):
         a.decompose()
     gallery_title.string = title + ' » ' + site_title
     gallery_h1.string = title
