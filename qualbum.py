@@ -100,11 +100,17 @@ feed_updated = feed.select('feed > updated')[0]
 feed_updated = datetime.now(timezone.utc).astimezone().isoformat()
 feed_id = feed.select('feed > id')[0]
 
-def feed_add(md):
-    url = baseurl + getpagepath(md)
+def feed_add(md, title=None, href=None, content=None):
+    if not title:
+        title = md['title']
+    if not href:
+        href = getpagepath(md)
+    if not content:
+        content = str(md['content'])
+    url = baseurl + href
     entry = feed.new_tag('entry')
     tag_title = feed.new_tag('title')
-    tag_title.string = md['title']
+    tag_title.string = title
     tag_id = feed.new_tag('id')
     tag_id.string = 'urn:uuid:' + str(uuid.uuid3(uuid.NAMESPACE_URL, url))
     tag_link = feed.new_tag('link')
@@ -115,7 +121,7 @@ def feed_add(md):
     tag_updated.string = md['date'].isoformat()
     tag_content = feed.new_tag('content')
     tag_content.attrs['type'] = 'html'
-    tag_content.string = str(md['content'])
+    tag_content.string = content
     entry.append(tag_title)
     entry.append(tag_id)
     entry.append(tag_link)
@@ -147,7 +153,7 @@ for md in mdfiles:
     galleries[base].append(md)
 
 # Insert a new image into the gallery
-def galleryinsert(md, title=None, href=None):
+def gallery_add(md, title=None, href=None):
     pagepath = getpagepath(md)
     if not title:
         title = md['title']
@@ -173,6 +179,9 @@ def galleryinsert(md, title=None, href=None):
 # Generate album listing
 gallery_title.string = 'List of Albums » ' + site_title
 gallery_h1.string = 'List of Albums'
+feed_title.string = 'List of Albums » ' + site_title
+listing_uuid = uuid.uuid3(uuid.NAMESPACE_URL, baseurl + '/albums/')
+feed_id.string = 'urn:uuid:' + str(listing_uuid)
 for name in sorted(galleries.keys()):
     if name != '/':
         md = galleries[name][-1]
@@ -187,12 +196,17 @@ for name in sorted(galleries.keys()):
                             md = image
         else:
             title = name
-        galleryinsert(md, title=title, href=name + '/')
+        gallery_add(md, title=title, href=name + '/')
+        feed_add(md, title=title, href=name + '/')
 
 listing_path = output + '/albums'
 mkdir_p(listing_path)
 with open(listing_path + '/index.html', 'w', encoding='utf-8') as file:
     file.write(gallery.prettify())
+listing_feed_path = output + '/albums/feed'
+mkdir_p(listing_feed_path)
+with open(listing_feed_path + '/index.xml', 'w', encoding='utf-8') as file:
+    file.write(feed.prettify())
 
 # Generate a new gallery
 def gengallery(base, mdfiles):
@@ -284,7 +298,7 @@ def gengallery(base, mdfiles):
                 file.write(single.prettify())
 
         # Create link in gallery
-        galleryinsert(md)
+        gallery_add(md)
 
     # Write out generated index
     indexfile = output + base + '/index.html'
