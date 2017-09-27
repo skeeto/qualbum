@@ -10,7 +10,7 @@ body.gallery {
     background: Beige;
     padding: 0;
     text-align: center;
-    height: 64px;
+    height: 66px;
     box-shadow: 0 0 10px DarkGray;
     border-bottom: 1px solid BlanchedAlmond;
 }
@@ -18,8 +18,8 @@ body.gallery {
 .gallery header h1 {
     text-align: center;
     display: block;
-    margin: 2px auto;
     font-weight: normal;
+    margin: 3px 0 0 0;
     padding: 3px;
     font-size: 24px;
     color: #545569;
@@ -107,7 +107,7 @@ body.gallery {
 }
 
 #gallery {
-    margin: 76px auto 0 auto;
+    margin: 80px auto 0 auto;
     text-align: center;
     max-width: 1300px;
 }
