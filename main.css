@@ -10,20 +10,15 @@ body.gallery {
     background: Beige;
     padding: 0;
     text-align: center;
-    height: 46px;
+    height: 64px;
     box-shadow: 0 0 10px DarkGray;
     border-bottom: 1px solid BlanchedAlmond;
 }
 
-.gallery .container {
-    margin: 0 auto;
-    width: 600px;
-}
-
 .gallery header h1 {
-    text-align: left;
-    display: inline-block;
-    margin: 2px 40px 0 0;
+    text-align: center;
+    display: block;
+    margin: 2px auto;
     font-weight: normal;
     padding: 3px;
     font-size: 24px;
@@ -32,14 +27,18 @@ body.gallery {
 }
 
 .gallery header ul {
-    text-align: left;
+    text-align: center;
+    display: block;
     font-size: 16px;
-    display: inline-block;
     list-style-type: none;
-    width: 100px;
-    height: 40px;
-    margin: 4px 0 0 0;
+    margin: 0;
     padding: 0;
+}
+
+.gallery header ul li {
+    display: inline-block;
+    text-align: left;
+    margin-right: 10px;
 }
 
 .gallery header li.icon.albums:before {
@@ -49,7 +48,7 @@ body.gallery {
     content: ' ';
     background: url('/icons.svg') 0px 1px no-repeat;
     background-size: 42px;
-    margin-right: 2px;
+    margin-right: 1px;
 }
 
 .gallery header li.icon.feed:before {
@@ -59,7 +58,7 @@ body.gallery {
     content: ' ';
     background: url('/icons.svg') -14px 2px no-repeat;
     background-size: 42px;
-    margin-right: 2px;
+    margin-right: 1px;
 }
 
 .gallery header li.icon.home:before {
@@ -69,7 +68,7 @@ body.gallery {
     content: ' ';
     background: url('/icons.svg') -28px 2px no-repeat;
     background-size: 42px;
-    margin-right: 2px;
+    margin-right: 1px;
 }
 
 #gallery li {
@@ -108,7 +107,7 @@ body.gallery {
 }
 
 #gallery {
-    margin: 60px auto 0 auto;
+    margin: 76px auto 0 auto;
     text-align: center;
     max-width: 1300px;
 }
