@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 import mistune
 import os
-import yaml
 import uuid
+import yaml
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone
 from glob import glob
+from multiprocessing import Pool
 from PIL import Image
 
 # Load site configuration
@@ -17,6 +18,9 @@ baseurl = config['baseurl']
 output = config['output']
 thumbsize = (config['thumbsize'], config['thumbsize'])
 previewsize = (config['previewsize'], config['previewsize'])
+
+# List of thumbnails and previews to create
+thumbqueue = []
 
 def mkdir_p(path):
     try:
@@ -255,19 +259,10 @@ def gengallery(base, mdfiles):
         ## Only create single page when building root gallery
         if base == '/':
             # Create thumbnail
-            image = None
-            if newer(imagefile, thumbfile):
-                image = Image.open(imagefile)
+            if newer(imagefile, thumbfile) or newer(imagefile, previewfile):
+                thumbqueue.append((imagefile, thumbfile, previewfile))
                 mkdir_p(os.path.dirname(thumbfile))
-                thumbnail(image).save(thumbfile)
-
-            # Create preview image
-            if newer(imagefile, previewfile):
-                if not image:
-                    image = Image.open(imagefile)
                 mkdir_p(os.path.dirname(previewfile))
-                image.thumbnail(previewsize)
-                image.save(previewfile)
 
             # Create page for image
             single_title.string = md['title']
@@ -322,3 +317,13 @@ def gengallery(base, mdfiles):
 
 for base, mdfiles in galleries.items():
     gengallery(base, mdfiles)
+
+def derive_images(val):
+    (imagefile, thumbfile, previewfile) = val
+    image = Image.open(imagefile)
+    thumbnail(image).save(thumbfile)
+    image.thumbnail(previewsize)
+    image.save(previewfile)
+
+with Pool() as pool:
+    pool.map(derive_images, thumbqueue, 1)
