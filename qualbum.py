@@ -313,7 +313,10 @@ def gengallery(base, mdfiles):
 
     # Write out generated feed
     mkdir_p(output + base + '/feed')
-    feed_self.attrs['href'] = baseurl + base + '/feed/'
+    if base == '/':
+        feed_self.attrs['href'] = baseurl + '/feed/'
+    else:
+        feed_self.attrs['href'] = baseurl + base + '/feed/'
     with open(output + base + '/feed/index.xml', 'w', encoding='utf-8') as file:
         file.write(str(feed))
 
