@@ -213,6 +213,14 @@ body.single {
     font-style: italic;
 }
 
+.single #meta li:after {
+    content: '—';
+}
+
+.single #meta li:last-child:after {
+    content: '';
+}
+
 .single #info {
     max-width: 600px;
     text-align: justify;
