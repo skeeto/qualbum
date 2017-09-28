@@ -61,7 +61,7 @@ def loadmeta(file):
             lines.append(line)
         meta = yaml.load(''.join(lines))
         html = mistune.markdown(''.join(md.readlines())) 
-        dom = BeautifulSoup(html, 'lxml')
+        dom = BeautifulSoup(html, 'html.parser')
         meta['content'] = dom
         meta['file'] = file
         return meta
@@ -97,8 +97,9 @@ feed_title = feed.select('title')[0]
 feed_author = feed.select('author name')[0]
 feed_author.string = author
 feed_updated = feed.select('feed > updated')[0]
-feed_updated = datetime.now(timezone.utc).astimezone().isoformat()
+feed_updated.string = datetime.now(timezone.utc).astimezone().isoformat()
 feed_id = feed.select('feed > id')[0]
+feed_self = feed.select('feed link[rel="self"]')[0]
 
 def feed_add(md, title=None, href=None, content=None):
     if not title:
@@ -118,7 +119,7 @@ def feed_add(md, title=None, href=None, content=None):
     tag_link.attrs['type'] = 'text/html'
     tag_link.attrs['href'] = url
     tag_updated = feed.new_tag('updated')
-    tag_updated.string = md['date'].isoformat()
+    tag_updated.string = md['date'].isoformat() + 'Z'
     tag_content = feed.new_tag('content')
     tag_content.attrs['type'] = 'html'
     tag_content.string = content
@@ -206,8 +207,9 @@ with open(listing_path + '/index.html', 'w', encoding='utf-8') as file:
     file.write(gallery.prettify())
 listing_feed_path = output + '/albums/feed'
 mkdir_p(listing_feed_path)
+feed_self.attrs['href'] = baseurl + '/albums/feed/'
 with open(listing_feed_path + '/index.xml', 'w', encoding='utf-8') as file:
-    file.write(feed.prettify())
+    file.write(str(feed))
 
 # Generate a new gallery
 def gengallery(base, mdfiles):
@@ -281,7 +283,7 @@ def gengallery(base, mdfiles):
                 single_next.attrs['href'] = '#'
             single_h1.string = md['title']
             single_time.string = md['date'].strftime('%B %d, %Y')
-            single_time.attrs['datetime'] = md['date'].isoformat()
+            single_time.attrs['datetime'] = md['date'].isoformat() + 'Z'
             single_info.string = ''
             single_info.append(md['content'])
             if md.get('f-stop'):
@@ -311,8 +313,9 @@ def gengallery(base, mdfiles):
 
     # Write out generated feed
     mkdir_p(output + base + '/feed')
+    feed_self.attrs['href'] = baseurl + base + '/feed/'
     with open(output + base + '/feed/index.xml', 'w', encoding='utf-8') as file:
-        file.write(feed.prettify())
+        file.write(str(feed))
 
 for base, mdfiles in galleries.items():
     gengallery(base, mdfiles)
