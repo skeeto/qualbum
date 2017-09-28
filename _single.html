@@ -7,6 +7,14 @@
         <link rel="stylesheet" href="/main.css"/>
     </head>
     <body class="single">
+        <script>
+            document.addEventListener('keyup', function(e) {
+                if (e.key === 'ArrowRight')
+                    document.getElementById('next').click();
+                if (e.key === 'ArrowLeft')
+                    document.getElementById('prev').click();
+            });
+        </script>
         <header>
             <a title="Previous photo" id="prev" class="nav prev"></a>
             <a title="Return to gallery" href="/" class="home"></a>
