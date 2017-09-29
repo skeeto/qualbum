@@ -281,8 +281,10 @@ def generate():
     main = Gallery(config=config)
     main.title = config.title
     galleries = []
+    dotfile = os.path.join('.', '.')
+    underfile = os.path.join('.', '_')
     for root, dirs, files in os.walk('.'):
-        if not root.startswith('./.') and not root.startswith('./_'):
+        if not root.startswith(dotfile) and not root.startswith(underfile):
             for file in files:
                 path = os.path.join(root, file)
                 if file == '_gallery.yaml':
