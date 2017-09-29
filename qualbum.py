@@ -229,7 +229,7 @@ def derive_images(val):
     image.thumbnail(previewsize)
     image.save(previewfile)
 
-# Exit when we're a multiprocessing child
+# Only generate when run as a program
 if __name__ == '__main__':
     # Load site configuration
     with open('_config.yaml', 'r', encoding='utf-8') as file:
