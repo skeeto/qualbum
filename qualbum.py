@@ -5,7 +5,6 @@ import uuid
 import yaml
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone
-from glob import glob
 from multiprocessing import Pool
 from PIL import Image
 
@@ -16,327 +15,312 @@ def mkdir_p(path):
     except:
         pass
 
-def thumbnail(image, thumbsize):
-    """Generate and return a thumbnail from an image."""
-    width, height = image.size
-    if width > height:
-        pad = width - height
-        x0 = pad // 2
-        y0 = 0
-        x1 = height + x0
-        y1 = height
-    else:
-        pad = height - width
-        x0 = 0
-        y0 = pad // 2
-        x1 = width
-        y1 = width + y0
-    image = image.crop((x0, y0, x1, y1))
-    image.thumbnail(thumbsize, Image.ANTIALIAS)
-    return image
+def link(src, dst):
+    """Like ln -f."""
+    if os.path.exists(dst):
+        os.unlink(dst)
+    os.link(src, dst)
 
 def newer(a, b):
     """Return true if b exists and is older than a."""
-    return (not os.path.exists(b) or 
+    return (not os.path.exists(b) or
             os.path.getmtime(a) > os.path.getmtime(b))
 
-def link(a, b):
-    """Like ln -f."""
-    if os.path.exists(b):
-        os.unlink(b)
-    os.link(a, b)
+def route_to_path(route, config):
+    parts = route.split('/')
+    return os.path.join(config.destination, *parts)
 
-def loadmeta(file):
-    """Load all of the metadata (YAML, Markdown) for an image."""
-    with open(file, 'r', encoding='utf-8') as md:
-        lines = [md.readline()]
-        while True:
-            line = md.readline()
-            if line.startswith('---'):
-                break;
-            lines.append(line)
-        meta = yaml.load(''.join(lines))
-        html = mistune.markdown(''.join(md.readlines())) 
-        dom = BeautifulSoup(html, 'html.parser')
-        meta['content'] = dom
-        meta['file'] = file
-        return meta
+class Config:
+    def __init__(self, yamlfile=None):
+        if yamlfile:
+            with open(yamlfile, 'r', encoding='utf-8') as file:
+                config = yaml.load(file)
+        else:
+            config = {}
+        self.title = config.get('title', 'Qualbum')
+        self.author = config.get('author', 'Nobody')
+        self.baseurl = config.get('baseurl', 'http://example.com')
+        self.destination = config.get('destination', '_site')
+        thumbsize = config.get('thumbsize', 300)
+        previewsize = config.get('thumbsize', 1200)
+        self.thumbsize = thumbsize, thumbsize
+        self.previewsize = previewsize, previewsize
 
-def getpagepath(md):
-    """Return the page URL for a given photo."""
-    return '/' + os.path.splitext(md['file'])[0] + '/'
+class Photo:
+    def __init__(self, metafile, config=Config()):
+        self.config = config
+        with open(metafile, 'r', encoding='utf-8') as f:
+            header = [f.readline()]
+            while True:
+                line = f.readline()
+                if line.startswith('---'):
+                    break;
+                header.append(line)
+            markdown = ''.join(f.readlines())
+        meta = yaml.load(''.join(header))
+        self.title = meta.get('title', '?')
+        self.date = meta.get('date', datetime.now(timezone.utc).astimezone())
+        self.meta = meta
+        html = mistune.markdown(markdown)
+        self.dom = BeautifulSoup(html, 'html.parser')
+        base = os.path.normpath(os.path.splitext(metafile)[0])
+        self.photo_file = base + '.jpg'
+        parts = base.split(os.sep)
+        self.route = '/' + '/'.join(parts) + '/'
+        parts = os.path.normpath(self.photo_file).split(os.sep)
+        self.photo_route = '/' + '/'.join(parts)
+        self.href = None
 
-def feed_add(md, title=None, href=None, content=None):
-    """Add an entry to the current feed."""
-    if not title:
-        title = md['title']
-    if not href:
-        href = getpagepath(md)
-    if not content:
-        content = str(md['content'])
-    url = baseurl + href
-    entry = feed.new_tag('entry')
-    tag_title = feed.new_tag('title')
-    tag_title.string = title
-    tag_id = feed.new_tag('id')
-    tag_id.string = 'urn:uuid:' + str(uuid.uuid3(uuid.NAMESPACE_URL, url))
-    tag_link = feed.new_tag('link')
-    tag_link.attrs['rel'] = 'alternate'
-    tag_link.attrs['type'] = 'text/html'
-    tag_link.attrs['href'] = url
-    tag_updated = feed.new_tag('updated')
-    tag_updated.string = md['date'].isoformat() + 'Z'
-    tag_content = feed.new_tag('content')
-    tag_content.attrs['type'] = 'html'
-    tag_content.string = content
-    entry.append(tag_title)
-    entry.append(tag_id)
-    entry.append(tag_link)
-    entry.append(tag_updated)
-    entry.append(tag_content)
-    feed_feed.append(entry)
+    def create_page(self, prev=None, next=None):
+        dom = BeautifulSoup(open('_single.html', encoding='utf-8'), 'xml')
 
-def gallery_add(md, title=None, href=None):
-    """Add an image to the current gallery."""
-    pagepath = getpagepath(md)
-    if not title:
-        title = md['title']
-    if not href:
-        href = pagepath
-    thumbpath = pagepath + 'thumb.jpg'
-    li = gallery.new_tag('li')
-    h2 = gallery.new_tag('h2')
-    h2.string = title
-    li.append(h2)
-    img = gallery.new_tag('img')
-    img.attrs['src'] = thumbpath
-    img.attrs['alt'] = ''
-    img.attrs['title'] = title
-    img.attrs['width'] = str(thumbsize[0])
-    img.attrs['height'] = str(thumbsize[1])
-    a = gallery.new_tag('a')
-    a.attrs['href'] = href;
-    a.append(img)
-    li.append(a)
-    gallery_gallery.append(li)
+        dom.select('title')[0].string = self.title
+        dom.select('#title')[0].string = self.title
 
-def gengallery(base, mdfiles):
-    """Generate a brand new photo gallery."""
-    conffile = base[1:] + '/_gallery.yaml'
-    if os.path.exists(conffile):
-        with open(conffile, 'r', encoding='utf-8') as file:
-            conf = yaml.load(file)
-        title = conf['title']
-    elif base == '/':
-        title = site_title
-    else:
-        title = base
+        a = dom.select('#full')[0]
+        a.attrs['href'] = self.photo_route
 
-    # Fill out gallery details
-    for a in gallery_gallery.select('li'):
-        a.decompose()
-    if base == '/':
-        gallery_title.string = site_title
-    else:
-        gallery_title.string = title + ' » ' + site_title
-    gallery_h1.string = title
+        img = dom.select('#photo')[0]
+        img.attrs['src'] = 'preview.jpg'
 
-    # Fill out Atom feed details
-    feed_title.string = title + ' » ' + site_title
-    gallery_uuid = uuid.uuid3(uuid.NAMESPACE_URL, baseurl + base)
-    feed_id.string = 'urn:uuid:' + str(gallery_uuid)
-    for entry in feed.select('entry'):
-        entry.decompose()
+        if prev:
+            dom.select('#prev')[0].attrs['href'] = prev.route
+        if next:
+            dom.select('#next')[0].attrs['href'] = next.route
 
-    # Process each image in the gallery
-    for i in range(len(mdfiles)):
-        md = mdfiles[i]
-        feed_add(md)
-        mdfile = md['file']
-        pagepath = getpagepath(md)
-        imagefile = os.path.splitext(mdfile)[0] + '.jpg'
-        thumbpath = pagepath + 'thumb.jpg'
-        previewpath = pagepath + 'preview.jpg'
-        thumbfile = output + thumbpath
-        previewfile = output + previewpath
-        fullpath = '../' + os.path.basename(imagefile)
+        time = dom.select('time')[0]
+        time.string = self.date.strftime('%B %d, %Y')
+        time.attrs['datetime'] = self.date.isoformat() + 'Z'
 
-        ## Only create single page when building root gallery
-        if base == '/':
-            # Create thumbnail
-            if newer(imagefile, thumbfile) or newer(imagefile, previewfile):
-                r = imagefile, thumbfile, previewfile, thumbsize, previewsize
-                thumbqueue.append(r)
-                mkdir_p(os.path.dirname(thumbfile))
-                mkdir_p(os.path.dirname(previewfile))
+        if self.meta.get('f-stop'):
+            dom.select('#f-stop')[0].string = self.meta['f-stop']
+        if self.meta.get('exposure-time'):
+            exposure_time = dom.select('#exposure-time')[0]
+            exposure_time.string = self.meta['exposure-time']
+        if self.meta.get('iso'):
+            dom.select('#iso')[0].string = str(self.meta['iso'])
+        dom.select('#info')[0].append(self.dom)
 
-            # Create page for image
-            single_title.string = md['title']
-            single_full.attrs['href'] = fullpath
-            single_img.attrs['src'] = 'preview.jpg'
-            if i > 0:
-                single_prev.attrs['href'] = getpagepath(mdfiles[i - 1])
-            else:
-                single_prev.attrs['href'] = '#'
-            if i < len(mdfiles) - 1:
-                single_next.attrs['href'] = getpagepath(mdfiles[i + 1])
-            else:
-                single_next.attrs['href'] = '#'
-            single_h1.string = md['title']
-            single_time.string = md['date'].strftime('%B %d, %Y')
-            single_time.attrs['datetime'] = md['date'].isoformat() + 'Z'
-            single_info.string = ''
-            single_info.append(md['content'])
-            if md.get('f-stop'):
-                single_fstop.string = md['f-stop']
-            else:
-                single_fstop.string = ''
-            if md.get('exposure-time'):
-                single_exposure.string = md['exposure-time']
-            else:
-                single_exposure.string = ''
-            if md.get('iso'):
-                single_iso.string = str(md['iso'])
-            else:
-                single_iso.string = ''
-            indexfile = output + pagepath + 'index.html';
-            mkdir_p(output + pagepath)
-            with open(indexfile, 'w', encoding='utf-8') as file:
-                file.write(single.prettify())
+        base = route_to_path(self.route, self.config)
+        mkdir_p(base)
+        index = os.path.join(base, 'index.html')
+        with open(index, 'w', encoding='utf-8') as f:
+            f.write(dom.prettify())
 
-        # Create link in gallery
-        gallery_add(md)
+    def create_resized(self):
+        thumbnail_file = route_to_path(self.route + 'thumb.jpg', self.config)
+        preview_file = route_to_path(self.route + 'preview.jpg', self.config)
+        image = Image.open(self.photo_file)
+        width, height = image.size
+        if width > height:
+            pad = width - height
+            x0 = pad // 2
+            y0 = 0
+            x1 = height + x0
+            y1 = height
+        else:
+            pad = height - width
+            x0 = 0
+            y0 = pad // 2
+            x1 = width
+            y1 = width + y0
+        cropped = image.crop((x0, y0, x1, y1))
+        cropped.thumbnail(self.config.thumbsize, Image.ANTIALIAS)
+        mkdir_p(os.path.dirname(thumbnail_file))
+        cropped.save(thumbnail_file)
+        image.thumbnail(self.config.previewsize)
+        image.save(preview_file)
 
-    # Write out generated index
-    indexfile = output + base + '/index.html'
-    with open(indexfile, 'w', encoding='utf-8') as file:
-        file.write(gallery.prettify())
+class Feed:
+    def __init__(self, route, title=None, config=Config()):
+        self.route = route + 'feed/'
+        self.title = title
+        self.config = config
+        self.id = uuid.uuid3(uuid.NAMESPACE_URL, config.baseurl + route)
+        self.photos = []
 
-    # Write out generated feed
-    mkdir_p(output + base + '/feed')
-    if base == '/':
-        feed_self.attrs['href'] = baseurl + '/feed/'
-    else:
-        feed_self.attrs['href'] = baseurl + base + '/feed/'
-    with open(output + base + '/feed/index.xml', 'w', encoding='utf-8') as file:
-        file.write(str(feed))
+    def append(self, photo):
+        self.photos.append(photo)
 
-def derive_images(val):
-    """Generate thumbnail and preview images (multiprocessing)."""
-    (imagefile, thumbfile, previewfile, thumbsize, previewsize) = val
-    image = Image.open(imagefile)
-    thumbnail(image, thumbsize).save(thumbfile)
-    image.thumbnail(previewsize)
-    image.save(previewfile)
+    def close(self):
+        baseurl = self.config.baseurl
+        dom = BeautifulSoup(open('_feed.xml', encoding='utf-8'), 'xml')
+        feed = dom.select('feed')[0]
+        title = dom.select('title')[0]
+        if self.title:
+            title.string = self.title + ' » ' + self.config.title
+        else:
+            title.string = self.config.title
+        dom.select('author name')[0].string = self.config.author
+        updated = dom.select('feed > updated')[0]
+        updated.string = datetime.now(timezone.utc).astimezone().isoformat()
 
-# Only generate when run as a program
+        dom.select('feed > id')[0].string = 'urn:uuid:' + str(self.id)
+
+        linkself = dom.select('feed link[rel="self"]')[0]
+        linkself.attrs['href'] = self.config.baseurl + self.route
+
+        for photo in self.photos:
+            entry = dom.new_tag('entry')
+            title = dom.new_tag('title')
+            title.string = photo.title
+
+            id = dom.new_tag('id')
+            url = self.config.baseurl + (photo.href or photo.route)
+            id.string = 'urn:uuid:' + str(uuid.uuid3(uuid.NAMESPACE_URL, url))
+
+            link = dom.new_tag('link')
+            link.attrs['rel'] = 'alternate'
+            link.attrs['type'] = 'text/html'
+            link.attrs['href'] = url
+
+            updated = dom.new_tag('updated')
+            updated.string = photo.date.isoformat() + 'Z'
+
+            content = dom.new_tag('content')
+            content.attrs['type'] = 'html'
+            content.string = str(photo.dom)
+
+            entry.append(title)
+            entry.append(id)
+            entry.append(link)
+            entry.append(updated)
+            entry.append(content)
+            feed.append(entry)
+
+        dest = route_to_path(self.route, self.config)
+        mkdir_p(dest)
+        xml = os.path.join(dest, 'index.xml')
+        with open(xml, 'w', encoding='utf-8') as file:
+            file.write(str(dom))
+
+class Gallery:
+    def __init__(self, yamlfile=None, config=Config()):
+        self.config = config
+        self.photos = []
+        if yamlfile:
+            with open(yamlfile, 'r', encoding='utf-8') as file:
+                meta = yaml.load(file)
+            self.path = os.path.normpath(os.path.dirname(yamlfile))
+            parts = os.path.normpath(self.path).split(os.sep)
+            self.route = '/' + '/'.join(parts) + '/'
+        else:
+            meta = {}
+            self.route = '/'
+        self.title = meta.get('title', config.title)
+        self.image = meta.get('image')
+        with open('_gallery.html', 'r', encoding='utf-8') as template:
+            self.dom = BeautifulSoup(template, 'xml')
+        self.gallery = self.dom.select('#gallery')[0]
+
+    def close(self):
+        self.photos = sorted(self.photos, key=lambda p: p.date, reverse=True)
+        feed = Feed(self.route, self.title, config=self.config)
+        for photo in self.photos:
+            feed.append(photo)
+            li = self.dom.new_tag('li')
+            h2 = self.dom.new_tag('h2')
+            h2.string = photo.title
+            li.append(h2)
+            img = self.dom.new_tag('img')
+            img.attrs['src'] = photo.route + 'thumb.jpg'
+            img.attrs['alt'] = ''
+            img.attrs['title'] = photo.title
+            img.attrs['width'] = str(self.config.thumbsize[0])
+            img.attrs['height'] = str(self.config.thumbsize[1])
+            a = self.dom.new_tag('a')
+            a.attrs['href'] = photo.href or photo.route
+            a.append(img)
+            li.append(a)
+            self.gallery.append(li)
+        feed.close()
+        dom_title = self.dom.select('title')[0]
+        if self.title == self.config.title:
+            dom_title.string = self.title
+        else:
+            dom_title.string = self.title + ' » ' + self.config.title
+        self.dom.select('#title')[0].string = self.title
+        dest = route_to_path(self.route, self.config)
+        mkdir_p(dest)
+        index = os.path.join(dest, 'index.html')
+        with open(index, 'w', encoding='utf-8') as file:
+            file.write(self.dom.prettify())
+        self.dom = None
+
+    def append(self, photo):
+        self.photos.append(photo)
+
+    def gather(self):
+        for file in os.listdir(self.path):
+            if file.endswith('.md'):
+                meta = os.path.join(self.path, file)
+                photo = Photo(meta, config=self.config)
+                self.append(photo)
+
+class ResizeManager:
+    def __init__(self):
+        self.photos = []
+
+    def append(self, photo):
+        route = photo.route
+        config = photo.config
+        thumbnail_file = route_to_path(route + 'thumb.jpg', config)
+        preview_file = route_to_path(route + 'preview.jpg', config)
+        newer_thumbnail = newer(photo.photo_file, thumbnail_file)
+        newer_preview = newer(photo.photo_file, preview_file)
+        if newer_thumbnail or newer_preview:
+            self.photos.append(photo)
+
+    def process(self):
+        with Pool() as pool:
+            pool.map(Photo.create_resized, self.photos, 1)
+
+def generate():
+    """Generate a site from the current directory."""
+    config = Config('_config.yaml')
+    main = Gallery(config=config)
+    main.title = config.title
+    galleries = []
+    for root, dirs, files in os.walk('.'):
+        if not root.startswith('./.') and not root.startswith('./_'):
+            for file in files:
+                path = os.path.join(root, file)
+                if file == '_gallery.yaml':
+                    gallery = Gallery(path, config)
+                    gallery.gather()
+                    for photo in gallery.photos:
+                        main.append(photo)
+                    gallery.close()
+                    galleries.append(gallery)
+                elif file[0] != '_':
+                    dest = os.path.join(config.destination, path)
+                    mkdir_p(os.path.dirname(dest))
+                    link(path, dest)
+    main.close()
+
+    # Build individual image pages
+    resizer = ResizeManager()
+    for i, photo in enumerate(main.photos):
+        prev = i > 0 and main.photos[i - 1]
+        next = i < len(main.photos) - 1 and main.photos[i + 1]
+        photo.create_page(prev=prev, next=next)
+        resizer.append(photo)
+    resizer.process()
+
+    # Build albums "gallery"
+    albums = Gallery(config=config)
+    albums.title = 'List of Albums'
+    albums.route = '/albums/'
+    for gallery in galleries:
+        photo = gallery.photos[-1];
+        if gallery.image:
+            for candidate in gallery.photos:
+                if candidate.title == gallery.image:
+                    photo = candidate
+        photo.title = gallery.title
+        photo.href = gallery.route
+        albums.append(photo)
+    albums.close()
+
 if __name__ == '__main__':
-    # Load site configuration
-    with open('_config.yaml', 'r', encoding='utf-8') as file:
-        config = yaml.load(file)
-    site_title = config['title']
-    author = config['author']
-    baseurl = config['baseurl']
-    output = config['output']
-    thumbsize = (config['thumbsize'], config['thumbsize'])
-    previewsize = (config['previewsize'], config['previewsize'])
-
-    # List of thumbnails and previews to create
-    thumbqueue = []
-
-    # Load the gallery template
-    gallery = BeautifulSoup(open('_gallery.html', encoding='utf-8'), 'lxml')
-    gallery_title = gallery.select('title')[0]
-    gallery_gallery = gallery.select('#gallery')[0]
-    gallery_h1 = gallery.select('#title')[0]
-    gallery_h1.string = site_title
-
-    # Load the image page template
-    single = BeautifulSoup(open('_single.html', encoding='utf-8'), 'lxml')
-    single_title = single.select('title')[0]
-    single_full = single.select('#full')[0]
-    single_img = single.select('#photo')[0]
-    single_prev = single.select('#prev')[0]
-    single_next = single.select('#next')[0]
-    single_h1 = single.select('#title')[0]
-    single_time = single.select('time')[0]
-    single_info = single.select('#info')[0]
-    single_fstop = single.select('#f-stop')[0]
-    single_exposure = single.select('#exposure-time')[0]
-    single_iso = single.select('#iso')[0]
-
-    # Load the feed template
-    feed = BeautifulSoup(open('_feed.xml', encoding='utf-8'), 'xml')
-    feed_feed = feed.select('feed')[0]
-    feed_title = feed.select('title')[0]
-    feed_author = feed.select('author name')[0]
-    feed_author.string = author
-    feed_updated = feed.select('feed > updated')[0]
-    feed_updated.string = datetime.now(timezone.utc).astimezone().isoformat()
-    feed_id = feed.select('feed > id')[0]
-    feed_self = feed.select('feed link[rel="self"]')[0]
-
-    # Dumb copy over files
-    files = glob('**/*', recursive=True)
-    for file in files:
-        if os.path.isfile(file) and file[0] != '_':
-            dest = output + '/' + file
-            mkdir_p(os.path.dirname(dest))
-            link(file, dest)
-
-    # Gather a list of all images
-    mdfiles = glob('**/*.md', recursive=True)
-    mdfiles = filter(lambda md: not md.startswith("_"), mdfiles)
-    mdfiles = map(loadmeta, mdfiles)
-    mdfiles = sorted(mdfiles, key=lambda md: md['date'], reverse=True)
-
-    # Gather up all the galleries
-    galleries = {}
-    galleries['/'] = mdfiles
-    for md in mdfiles:
-        base = '/' + os.path.dirname(md['file'])
-        if not galleries.get(base):
-            galleries[base] = []
-        galleries[base].append(md)
-
-    # Generate album listing
-    gallery_title.string = 'List of Albums » ' + site_title
-    gallery_h1.string = 'List of Albums'
-    feed_title.string = 'List of Albums » ' + site_title
-    listing_uuid = uuid.uuid3(uuid.NAMESPACE_URL, baseurl + '/albums/')
-    feed_id.string = 'urn:uuid:' + str(listing_uuid)
-    for name in sorted(galleries.keys()):
-        if name != '/':
-            md = galleries[name][-1]
-            conffile = name[1:] + '/_gallery.yaml'
-            if os.path.exists(conffile):
-                with open(conffile, 'r', encoding='utf-8') as file:
-                    conf = yaml.load(file)
-                    title = conf['title']
-                    if conf.get('image'):
-                        for image in galleries[name]:
-                            if image['title'] == conf['image']:
-                                md = image
-            else:
-                title = name
-            gallery_add(md, title=title, href=name + '/')
-            feed_add(md, title=title, href=name + '/')
-
-    # Write out albums HTML and feed
-    listing_path = output + '/albums'
-    mkdir_p(listing_path)
-    with open(listing_path + '/index.html', 'w', encoding='utf-8') as file:
-        file.write(gallery.prettify())
-    listing_feed_path = output + '/albums/feed'
-    mkdir_p(listing_feed_path)
-    feed_self.attrs['href'] = baseurl + '/albums/feed/'
-    with open(listing_feed_path + '/index.xml', 'w', encoding='utf-8') as file:
-        file.write(str(feed))
-
-    # Generate the main gallery
-    for base, mdfiles in galleries.items():
-        gengallery(base, mdfiles)
-
-    # Spawn subprocesses to create thumbnails and previews
-    with Pool() as pool:
-        pool.map(derive_images, thumbqueue, 1)
+    generate()

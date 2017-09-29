@@ -1,4 +1,4 @@
 title: Qualbum
 author: Nobody
 baseurl: http://example.com
-output: _site
+destination: _site
