@@ -16,7 +16,7 @@ def mkdir_p(path):
     except:
         pass
 
-def thumbnail(image):
+def thumbnail(image, thumbsize):
     """Generate and return a thumbnail from an image."""
     width, height = image.size
     if width > height:
@@ -225,7 +225,7 @@ def derive_images(val):
     """Generate thumbnail and preview images (multiprocessing)."""
     (imagefile, thumbfile, previewfile, thumbsize, previewsize) = val
     image = Image.open(imagefile)
-    thumbnail(image).save(thumbfile)
+    thumbnail(image, thumbsize).save(thumbfile)
     image.thumbnail(previewsize)
     image.save(previewfile)
 
