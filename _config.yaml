@@ -1,4 +1,5 @@
 title: Qualbum
 author: Nobody
-baseurl: http://example.com
+baseurl: http://nullprogram.com
+prefix: /qualbum
 destination: _site
