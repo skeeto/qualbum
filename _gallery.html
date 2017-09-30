@@ -5,15 +5,21 @@
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <link rel="alternate" type="application/atom+xml" href="feed/"/>
-        <link rel="stylesheet" href="/main.css"/>
+        <link rel="stylesheet" class="root-href" href="/main.css"/>
     </head>
     <body class="gallery">
         <header>
             <h1 id="title"></h1>
             <ul>
-                <li class="icon home"><a href="/">home</a></li>
-                <li class="icon albums"><a href="/albums/">albums</a></li>
-                <li class="icon feed"><a href="feed/">feed</a></li>
+                <li class="icon home">
+                    <a class="root-href" href="/">home</a>
+                </li>
+                <li class="icon albums">
+                    <a class="root-href" href="/albums/">albums</a>
+                </li>
+                <li class="icon feed">
+                    <a href="feed/">feed</a>
+                </li>
             </ul>
         </header>
         <ul id="gallery">

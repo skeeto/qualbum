@@ -40,6 +40,7 @@ class Config:
         self.title = config.get('title', 'Qualbum')
         self.author = config.get('author', 'Nobody')
         self.baseurl = config.get('baseurl', 'http://example.com')
+        self.prefix = config.get('prefix', '')
         self.destination = config.get('destination', '_site')
         thumbsize = config.get('thumbsize', 300)
         previewsize = config.get('thumbsize', 1200)
@@ -66,13 +67,14 @@ class Photo:
         base = os.path.normpath(os.path.splitext(metafile)[0])
         self.photo_file = base + '.jpg'
         parts = base.split(os.sep)
-        self.route = '/' + '/'.join(parts) + '/'
+        self.route = config.prefix + '/' + '/'.join(parts) + '/'
         parts = os.path.normpath(self.photo_file).split(os.sep)
-        self.photo_route = '/' + '/'.join(parts)
+        self.photo_route = config.prefix + '/' + '/'.join(parts)
         self.href = None
 
     def create_page(self, prev=None, next=None):
-        dom = BeautifulSoup(open('_single.html', encoding='utf-8'), 'xml')
+        with open('_single.html', encoding='utf-8') as template:
+            dom = BeautifulSoup(template, 'html.parser')
 
         dom.select('title')[0].string = self.title
         dom.select('#title')[0].string = self.title
@@ -87,6 +89,10 @@ class Photo:
             dom.select('#prev')[0].attrs['href'] = prev.route
         if next:
             dom.select('#next')[0].attrs['href'] = next.route
+
+        for root_href in dom.select('.root-href'):
+            orig = root_href.attrs['href']
+            root_href.attrs['href']= self.config.prefix + orig
 
         time = dom.select('time')[0]
         time.string = self.date.strftime('%B %d, %Y')
@@ -136,14 +142,14 @@ class Feed:
         self.route = route + 'feed/'
         self.title = title
         self.config = config
-        self.id = uuid.uuid3(uuid.NAMESPACE_URL, config.baseurl + route)
+        feed_url = config.baseurl + config.prefix + route
+        self.id = uuid.uuid3(uuid.NAMESPACE_URL, feed_url)
         self.photos = []
 
     def append(self, photo):
         self.photos.append(photo)
 
     def close(self):
-        baseurl = self.config.baseurl
         dom = BeautifulSoup(open('_feed.xml', encoding='utf-8'), 'xml')
         feed = dom.select('feed')[0]
         title = dom.select('title')[0]
@@ -203,14 +209,14 @@ class Gallery:
                 meta = yaml.load(file)
             self.path = os.path.normpath(os.path.dirname(yamlfile))
             parts = os.path.normpath(self.path).split(os.sep)
-            self.route = '/' + '/'.join(parts) + '/'
+            self.route = config.prefix + '/' + '/'.join(parts) + '/'
         else:
             meta = {}
-            self.route = '/'
+            self.route = config.prefix + '/'
         self.title = meta.get('title', config.title)
         self.image = meta.get('image')
         with open('_gallery.html', 'r', encoding='utf-8') as template:
-            self.dom = BeautifulSoup(template, 'xml')
+            self.dom = BeautifulSoup(template, 'html.parser')
         self.gallery = self.dom.select('#gallery')[0]
 
     def close(self):
@@ -240,6 +246,11 @@ class Gallery:
         else:
             dom_title.string = self.title + ' » ' + self.config.title
         self.dom.select('#title')[0].string = self.title
+
+        for root_href in self.dom.select('.root-href'):
+            orig = root_href.attrs['href']
+            root_href.attrs['href']= self.config.prefix + orig
+
         dest = route_to_path(self.route, self.config)
         mkdir_p(dest)
         index = os.path.join(dest, 'index.html')
@@ -295,7 +306,9 @@ def generate():
                     gallery.close()
                     galleries.append(gallery)
                 elif file[0] != '_':
-                    dest = os.path.join(config.destination, path)
+                    parts = os.path.normpath(path).split(os.sep)
+                    route = config.prefix + '/' + '/'.join(parts)
+                    dest = route_to_path(route, config)
                     mkdir_p(os.path.dirname(dest))
                     link(path, dest)
     main.close()
@@ -312,7 +325,7 @@ def generate():
     # Build albums "gallery"
     albums = Gallery(config=config)
     albums.title = 'List of Albums'
-    albums.route = '/albums/'
+    albums.route = config.prefix + '/albums/'
     for gallery in galleries:
         photo = gallery.photos[-1];
         if gallery.image:
