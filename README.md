@@ -1,1 +1,0 @@
-Demo site for Qualbum.

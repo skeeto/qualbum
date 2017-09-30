@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-<link href="http://example.com/albums/feed/" rel="self" type="application/atom+xml"/>
+<link href="http://nullprogram.com/qualbum/albums/feed/" rel="self" type="application/atom+xml"/>
 <title>List of Albums » Qualbum</title>
-<updated>2017-09-29T21:50:10.273382-04:00</updated>
-<id>urn:uuid:daf0dafe-dd18-3a21-841b-d14878fcb39f</id>
+<updated>2017-09-29T22:46:16.489208-04:00</updated>
+<id>urn:uuid:50bfbf96-7460-3c7e-bb53-b2bfaf06197f</id>
 <author>
 <name>Nobody</name>
 </author>
-<entry><title>Favorite Colors</title><id>urn:uuid:46d6fd84-0bbd-3c80-ae9f-df8553117983</id><link href="http://example.com/colors/" rel="alternate" type="text/html"/><updated>2017-09-25T17:23:57Z</updated><content type="html">&lt;p&gt;Blue is the colour between violet and green on the spectrum of visible
+<entry><title>Favorite Colors</title><id>urn:uuid:23586cf0-0117-309a-a69a-54c6490d367d</id><link href="http://nullprogram.com/qualbum/colors/" rel="alternate" type="text/html"/><updated>2017-09-25T17:23:57Z</updated><content type="html">&lt;p&gt;Blue is the colour between violet and green on the spectrum of visible
 light. Human eyes perceive blue when observing light with a wavelength
 between 450 and 495 nanometres. Blues with a higher frequency and thus a
 shorter wavelength appear more violet, while those with a lower

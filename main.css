@@ -49,7 +49,7 @@ body.gallery {
     width: 14px;
     height: 15px;
     content: ' ';
-    background: url('/icons.svg') 0px 1px no-repeat;
+    background: url('/qualbum/icons.svg') 0px 1px no-repeat;
     background-size: 42px;
     margin-right: 1px;
 }
@@ -59,7 +59,7 @@ body.gallery {
     width: 14px;
     height: 15px;
     content: ' ';
-    background: url('/icons.svg') -14px 2px no-repeat;
+    background: url('/qualbum/icons.svg') -14px 2px no-repeat;
     background-size: 42px;
     margin-right: 1px;
 }
@@ -69,7 +69,7 @@ body.gallery {
     width: 14px;
     height: 15px;
     content: ' ';
-    background: url('/icons.svg') -28px 2px no-repeat;
+    background: url('/qualbum/icons.svg') -28px 2px no-repeat;
     background-size: 42px;
     margin-right: 1px;
 }

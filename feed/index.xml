@@ -1,27 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-<link href="http://example.com/feed/" rel="self" type="application/atom+xml"/>
+<link href="http://nullprogram.com/qualbum/feed/" rel="self" type="application/atom+xml"/>
 <title>Qualbum » Qualbum</title>
-<updated>2017-09-29T21:50:10.034613-04:00</updated>
-<id>urn:uuid:773536a8-4b7b-383d-9106-697d4d366254</id>
+<updated>2017-09-29T22:46:16.348012-04:00</updated>
+<id>urn:uuid:7dca5d2e-f129-3ce4-8bc6-24a8b1eda157</id>
 <author>
 <name>Nobody</name>
 </author>
-<entry><title>Cyan</title><id>urn:uuid:c3ff931a-61bf-3e42-b556-05899b13069f</id><link href="http://example.com/colors/cyan/" rel="alternate" type="text/html"/><updated>2017-09-25T17:23:57Z</updated><content type="html">&lt;p&gt;Cyan is a greenish-blue color. It is evoked by light with a predominant
-wavelength of between 490–520 nm, between the wavelengths of blue and
-green.&lt;/p&gt;
-&lt;p&gt;In the subtractive color system, or CMYK (subtractive), which can be
-overlaid to produce all colors in paint and color printing, cyan is one
-of the primary colors, along with magenta, yellow, and black. In the
-additive color system, or RGB (additive) color model, used to create all
-the colors on a computer or television display, cyan is made by mixing
-equal amounts of green and blue light. Cyan is the complement of red; it
-can be made by the removal of red from white light. Mixing red light and
-cyan light at the right intensity will make white light.&lt;/p&gt;
-&lt;p&gt;The web color cyan is synonymous with aqua. Other colors in the cyan
-color range are teal, turquoise, electric blue, aquamarine, and others
-described as blue-green.&lt;/p&gt;
-</content></entry><entry><title>Yellow</title><id>urn:uuid:a4a44391-d13f-3785-aa31-ca44fd34d45a</id><link href="http://example.com/colors/yellow/" rel="alternate" type="text/html"/><updated>2017-09-25T17:23:57Z</updated><content type="html">&lt;p&gt;Yellow is the color between green and orange on the spectrum of visible
+<entry><title>Yellow</title><id>urn:uuid:616dd65e-aa01-3d6c-9d60-7d6cdcc4cada</id><link href="http://nullprogram.com/qualbum/colors/yellow/" rel="alternate" type="text/html"/><updated>2017-09-25T17:23:57Z</updated><content type="html">&lt;p&gt;Yellow is the color between green and orange on the spectrum of visible
 light. It is evoked by light with a predominant wavelength of roughly
 570–590 nm. In traditional color theory, used in painting, and in the
 subtractive color system, used in color printing, yellow is a primary
@@ -39,7 +25,7 @@ the U.S., with cowardice. In Iran it has connotations of
 pallor/sickness, but also wisdom and connection. It plays an important
 role in Asian culture, particularly in China, where it is seen as the
 color of happiness, glory, wisdom, harmony, and culture.&lt;/p&gt;
-</content></entry><entry><title>Red</title><id>urn:uuid:05a8de97-4a5e-3ccd-b07b-ee6321c145b9</id><link href="http://example.com/colors/red/" rel="alternate" type="text/html"/><updated>2017-09-25T17:23:57Z</updated><content type="html">&lt;p&gt;Red is the color at the longer-wavelengths end of the spectrum of
+</content></entry><entry><title>Red</title><id>urn:uuid:3691abda-f1f6-37ae-b275-f1da6fb5ab68</id><link href="http://nullprogram.com/qualbum/colors/red/" rel="alternate" type="text/html"/><updated>2017-09-25T17:23:57Z</updated><content type="html">&lt;p&gt;Red is the color at the longer-wavelengths end of the spectrum of
 visible light next to orange, at the opposite end from violet. Red color
 has a predominant light wavelength of roughly 620–740 nanometers. Light
 with a longer wavelength than red but shorter than terahertz radiation
@@ -76,7 +62,7 @@ heat, activity, passion, sexuality, anger, love and joy. In China, India
 and many other Asian countries it is the color of symbolizing happiness
 and good fortune. Since the 19th century, red has also been associated
 with socialism and communism.&lt;/p&gt;
-</content></entry><entry><title>Purple</title><id>urn:uuid:694e5a42-0ecf-32c9-b24d-98e169322c0f</id><link href="http://example.com/colors/purple/" rel="alternate" type="text/html"/><updated>2017-09-25T17:23:57Z</updated><content type="html">&lt;p&gt;Purple is a color intermediate between blue and red. It is similar to
+</content></entry><entry><title>Purple</title><id>urn:uuid:168672b0-95e3-3b63-a589-2dd0a6d97ec9</id><link href="http://nullprogram.com/qualbum/colors/purple/" rel="alternate" type="text/html"/><updated>2017-09-25T17:23:57Z</updated><content type="html">&lt;p&gt;Purple is a color intermediate between blue and red. It is similar to
 violet, but unlike violet, which is a spectral color with its own
 wavelength on the visible spectrum of light, purple is a composite color
 made by combining red and blue. According to surveys In Europe and the
@@ -88,7 +74,7 @@ color worn by the rulers of the Byzantine Empire and the Holy Roman
 Empire, and later by Roman Catholic bishops. Similarly in Japan, the
 color is traditionally associated with the Emperor and aristocracy. The
 complementary color of purple is yellow.&lt;/p&gt;
-</content></entry><entry><title>Green</title><id>urn:uuid:4888c104-f8a5-3ffe-8ac3-49f83a4d59c0</id><link href="http://example.com/colors/green/" rel="alternate" type="text/html"/><updated>2017-09-25T17:23:57Z</updated><content type="html">&lt;p&gt;Green is the color between blue and yellow on the spectrum of visible
+</content></entry><entry><title>Green</title><id>urn:uuid:c704daf6-1670-3d01-bd22-2fd423b6be82</id><link href="http://nullprogram.com/qualbum/colors/green/" rel="alternate" type="text/html"/><updated>2017-09-25T17:23:57Z</updated><content type="html">&lt;p&gt;Green is the color between blue and yellow on the spectrum of visible
 light. It is evoked by light with a predominant wavelength of roughly
 495–570 nm. In the subtractive color system, used in painting and color
 printing, it is created by a combination of yellow and blue, or yellow
@@ -129,7 +115,21 @@ protection and social justice describe themselves as part of the Green
 movement, some naming themselves Green parties. This has led to similar
 campaigns in advertising, as companies have sold green, or
 environmentally friendly, products.&lt;/p&gt;
-</content></entry><entry><title>Blue</title><id>urn:uuid:82abe364-8c7a-35ba-be03-263f7e770287</id><link href="http://example.com/colors/blue/" rel="alternate" type="text/html"/><updated>2017-09-25T17:23:57Z</updated><content type="html">&lt;p&gt;Blue is the colour between violet and green on the spectrum of visible
+</content></entry><entry><title>Cyan</title><id>urn:uuid:e534d08c-4f0f-362c-a1ec-3b05690fb02f</id><link href="http://nullprogram.com/qualbum/colors/cyan/" rel="alternate" type="text/html"/><updated>2017-09-25T17:23:57Z</updated><content type="html">&lt;p&gt;Cyan is a greenish-blue color. It is evoked by light with a predominant
+wavelength of between 490–520 nm, between the wavelengths of blue and
+green.&lt;/p&gt;
+&lt;p&gt;In the subtractive color system, or CMYK (subtractive), which can be
+overlaid to produce all colors in paint and color printing, cyan is one
+of the primary colors, along with magenta, yellow, and black. In the
+additive color system, or RGB (additive) color model, used to create all
+the colors on a computer or television display, cyan is made by mixing
+equal amounts of green and blue light. Cyan is the complement of red; it
+can be made by the removal of red from white light. Mixing red light and
+cyan light at the right intensity will make white light.&lt;/p&gt;
+&lt;p&gt;The web color cyan is synonymous with aqua. Other colors in the cyan
+color range are teal, turquoise, electric blue, aquamarine, and others
+described as blue-green.&lt;/p&gt;
+</content></entry><entry><title>Blue</title><id>urn:uuid:76fbcc58-9a79-3645-96cd-f746be0cff00</id><link href="http://nullprogram.com/qualbum/colors/blue/" rel="alternate" type="text/html"/><updated>2017-09-25T17:23:57Z</updated><content type="html">&lt;p&gt;Blue is the colour between violet and green on the spectrum of visible
 light. Human eyes perceive blue when observing light with a wavelength
 between 450 and 495 nanometres. Blues with a higher frequency and thus a
 shorter wavelength appear more violet, while those with a lower
