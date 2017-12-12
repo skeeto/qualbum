@@ -46,6 +46,7 @@ class Config:
         previewsize = config.get('thumbsize', 1200)
         self.thumbsize = thumbsize, thumbsize
         self.previewsize = previewsize, previewsize
+        self.pagemax = config.get('pagemax', 48)
 
 class Photo:
     def __init__(self, metafile, config=Config()):
@@ -133,9 +134,9 @@ class Photo:
         cropped = image.crop((x0, y0, x1, y1))
         cropped.thumbnail(self.config.thumbsize, Image.ANTIALIAS)
         mkdir_p(os.path.dirname(thumbnail_file))
-        cropped.save(thumbnail_file)
+        cropped.save(thumbnail_file, optimize=True, quality=90)
         image.thumbnail(self.config.previewsize)
-        image.save(preview_file)
+        image.save(preview_file, optimize=True)
 
 class Feed:
     def __init__(self, route, title=None, config=Config()):
@@ -204,6 +205,7 @@ class Gallery:
     def __init__(self, yamlfile=None, config=Config()):
         self.config = config
         self.photos = []
+        self.pagenum = 1
         if yamlfile:
             with open(yamlfile, 'r', encoding='utf-8') as file:
                 meta = yaml.load(file)
@@ -219,10 +221,64 @@ class Gallery:
             self.dom = BeautifulSoup(template, 'html.parser')
         self.gallery = self.dom.select('#gallery')[0]
 
+    def flush(self, last):
+        if self.pagenum == 1:
+            tail = ''
+        else:
+            tail = ' (page ' + str(self.pagenum) + ')'
+
+        dom_title = self.dom.select('title')[0]
+        if self.title == self.config.title:
+            dom_title.string = self.title + tail
+        else:
+            dom_title.string = self.title + tail + ' » ' + self.config.title
+        self.dom.select('#title')[0].string = self.title + tail
+
+        for root_href in self.dom.select('.root-href'):
+            orig = root_href.attrs['href']
+            root_href.attrs['href']= self.config.prefix + orig
+
+        # Write out navigation links
+        if self.pagenum == 1:
+            prev = '#'
+        elif self.pagenum == 2:
+            prev = '../'
+        else:
+            prev = '../' + str(self.pagenum - 1) + '/'
+        if last:
+            next = '#'
+        elif self.pagenum == 1:
+            next = '2/'
+        else:
+            next = '../' + str(self.pagenum + 1) + '/'
+        self.dom.select('#prev')[0].attrs['href'] = prev
+        self.dom.select('#next')[0].attrs['href'] = next
+
+        # Write out gallery page
+        if self.pagenum == 1:
+            route = self.route
+        else:
+            route = self.route + '/' + str(self.pagenum) + '/'
+        dest = route_to_path(route, self.config)
+        mkdir_p(dest)
+        index = os.path.join(dest, 'index.html')
+        with open(index, 'w', encoding='utf-8') as file:
+            file.write(self.dom.prettify())
+
+        if last:
+            self.dom = None
+        else:
+            self.pagenum += 1
+            self.gallery.clear()
+
     def close(self):
         self.photos = sorted(self.photos, key=lambda p: p.date, reverse=True)
         feed = Feed(self.route, self.title, config=self.config)
+        count = 0
         for photo in self.photos:
+            if count == self.config.pagemax:
+                self.flush(False)
+                count = 0
             feed.append(photo)
             li = self.dom.new_tag('li')
             h2 = self.dom.new_tag('h2')
@@ -239,24 +295,9 @@ class Gallery:
             a.append(img)
             li.append(a)
             self.gallery.append(li)
+            count += 1
         feed.close()
-        dom_title = self.dom.select('title')[0]
-        if self.title == self.config.title:
-            dom_title.string = self.title
-        else:
-            dom_title.string = self.title + ' » ' + self.config.title
-        self.dom.select('#title')[0].string = self.title
-
-        for root_href in self.dom.select('.root-href'):
-            orig = root_href.attrs['href']
-            root_href.attrs['href']= self.config.prefix + orig
-
-        dest = route_to_path(self.route, self.config)
-        mkdir_p(dest)
-        index = os.path.join(dest, 'index.html')
-        with open(index, 'w', encoding='utf-8') as file:
-            file.write(self.dom.prettify())
-        self.dom = None
+        self.flush(True)
 
     def append(self, photo):
         self.photos.append(photo)

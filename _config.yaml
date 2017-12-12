@@ -3,3 +3,4 @@ author: Nobody
 baseurl: http://nullprogram.com
 prefix: /qualbum
 destination: _site
+pagemax: 48
