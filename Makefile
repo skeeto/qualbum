@@ -3,3 +3,6 @@ build:
 
 clean:
 	rm -rf _site
+
+mostlyclean:
+	rm -rf _site/*
