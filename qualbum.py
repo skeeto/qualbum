@@ -34,7 +34,7 @@ class Config:
     def __init__(self, yamlfile=None):
         if yamlfile:
             with open(yamlfile, 'r', encoding='utf-8') as file:
-                config = yaml.load(file)
+                config = yaml.safe_load(file)
         else:
             config = {}
         self.title = config.get('title', 'Qualbum')
@@ -59,7 +59,7 @@ class Photo:
                     break;
                 header.append(line)
             markdown = ''.join(f.readlines())
-        meta = yaml.load(''.join(header))
+        meta = yaml.safe_load(''.join(header))
         self.title = meta.get('title', '?')
         self.date = meta.get('date', datetime.now(timezone.utc).astimezone())
         self.meta = meta
@@ -208,7 +208,7 @@ class Gallery:
         self.pagenum = 1
         if yamlfile:
             with open(yamlfile, 'r', encoding='utf-8') as file:
-                meta = yaml.load(file)
+                meta = yaml.safe_load(file)
             self.path = os.path.normpath(os.path.dirname(yamlfile))
             parts = os.path.normpath(self.path).split(os.sep)
             self.route = config.prefix + '/' + '/'.join(parts) + '/'
