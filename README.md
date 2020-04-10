@@ -17,3 +17,15 @@ the image (title, date, etc.), and is followed by a free-form
 description of the image in Markdown.
 
 The "Favorite Colors" (`colors/`) gallery in serves as a basic example.
+
+## Installation, setup, and build
+
+Create a virtual environment and install the dependencies:
+
+    $ python -m venv .
+    $ source bin/activate
+    $ pip install -r requirements.txt
+
+Build your album site:
+
+    $ python qualbum.py
