@@ -88,10 +88,17 @@ int run(const Config& cfg) {
     std::vector<fs::path> static_files;
     walk_collect(".", galleries, static_files, cfg);
 
-    // Phase 2: hard-link static files into the destination tree.
+    // Phase 2: hard-link static files into the destination tree, under
+    // the prefix path (mirrors qualbum.py:352-357: every non-underscore,
+    // non-hidden file at the gallery root is routed as
+    // `<prefix>/<relpath>`, so on a site with `prefix: /qualbum` the
+    // shared assets land at `_site/qualbum/main.css` rather than
+    // `_site/main.css`). With prefix empty the route is just `/<relpath>`
+    // and the file lands at `_site/<relpath>` as before.
     for (const auto& src : static_files) {
         auto rel = fs::relative(src, ".");
-        auto dest = cfg.destination / rel;
+        std::string route = cfg.prefix + "/" + rel.generic_string();
+        auto dest = fsu::route_to_path(cfg.destination, route);
         fsu::hard_link(src, dest);
     }
 
