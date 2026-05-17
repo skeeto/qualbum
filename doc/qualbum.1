@@ -1,0 +1,363 @@
+.\" Manpage for qualbum.
+.TH QUALBUM 1 "May 2026" "qualbum 0.1" "User Commands"
+.SH NAME
+qualbum \- generate a static photo gallery website
+.
+.SH SYNOPSIS
+.B qualbum
+.RI [ OPTIONS ]
+.
+.SH DESCRIPTION
+.B qualbum
+generates a static photo gallery from a directory tree of JPEG images and
+Markdown captions in the current working directory. It produces gravity-cropped
+thumbnails, gamma-correct Lanczos-3 previews, paginated gallery pages,
+per-photo detail pages, and Atom feeds. Source JPEGs and other static assets
+are hard-linked into the output tree.
+.PP
+The program is run from the gallery root \(em the directory that contains
+.BR _config.yaml ,
+the HTML/XML templates, and one or more album subdirectories. It walks every
+non-hidden, non-underscore subdirectory looking for albums; an album is any
+directory containing a
+.B _gallery.yaml
+file.
+.PP
+Thumbnails and previews are regenerated only when the source JPEG is newer
+than the cached output (or always, under
+.BR \-\-force ).
+HTML and feeds are always re-emitted; they are cheap to write and depend on
+the full set of photos.
+.
+.SH OPTIONS
+.TP
+.BR \-d ", " \-\-destination " " \fIDIR\fR
+Write the generated site to
+.IR DIR .
+Overrides
+.B destination
+from
+.BR _config.yaml .
+Default:
+.BR _site .
+.TP
+.BR \-j ", " \-\-jobs " " \fIN\fR
+Use
+.I N
+worker threads for image resize. Default:
+.B std::thread::hardware_concurrency()
+(typically the number of CPU cores).
+.TP
+.BR \-f ", " \-\-force
+Re-generate every thumbnail and preview JPEG, ignoring source mtimes. Useful
+after changing
+.B thumbsize
+or
+.BR previewsize ,
+or after updating the resize code.
+.TP
+.BI \-\-config " FILE"
+Read the site configuration from
+.I FILE
+instead of
+.BR _config.yaml .
+The destination is still resolved relative to the current working directory.
+.TP
+.BR \-h ", " \-\-help
+Print a short usage message and exit.
+.
+.SH CONFIGURATION
+.B qualbum
+loads
+.B _config.yaml
+(or the file passed to
+.BR \-\-config )
+at startup. The format is a flat YAML map; all keys are optional and have
+the defaults shown.
+.TP
+.B title
+Site title. Used in the
+.B <title>
+element and the Atom feed title.
+Default: \fB"Qualbum"\fR.
+.TP
+.B author
+Author name for feeds.
+Default: \fB"Nobody"\fR.
+.TP
+.B baseurl
+Absolute base URL of the deployed site, e.g.
+.BR http://photo.example.com .
+Used to build Atom
+.B <id>
+and
+.B <link>
+URLs.
+Default: \fBhttp://example.com\fR.
+.TP
+.B prefix
+URL path prefix, used when the site is deployed under a sub-path rather than
+at the document root. Empty by default.
+.TP
+.B destination
+Output directory. May be overridden with
+.BR \-\-destination .
+Default:
+.BR _site .
+.TP
+.B thumbsize
+Side length, in pixels, of the gravity-cropped square thumbnail.
+Default:
+.BR 300 .
+.TP
+.B previewsize
+Longer-side cap, in pixels, of the aspect-preserving preview. Sources smaller
+than this are not enlarged.
+Default:
+.BR 1200 .
+.TP
+.B pagemax
+Photos per paginated gallery page.
+Default:
+.BR 48 .
+.TP
+.B force
+If true, behave as if
+.BR \-\-force
+were passed on every invocation.
+Default:
+.BR false .
+.PP
+A typical
+.B _config.yaml
+looks like:
+.PP
+.RS 4
+.nf
+title: "Kelsey Wellons Photography"
+author: "Kelsey Wellons"
+baseurl: "http://photo.example.com"
+pagemax: 24
+.fi
+.RE
+.
+.SH "INPUT LAYOUT"
+The gallery root must contain three template files and a config file, and may
+contain any number of album subdirectories plus arbitrary static assets:
+.PP
+.RS 4
+.nf
+.B _config.yaml          \fR# site config (see CONFIGURATION)
+.B _gallery.html         \fR# template for paginated gallery pages
+.B _single.html          \fR# template for per-photo pages
+.B _feed.xml             \fR# template for Atom feeds
+main.css              # any non-underscore, non-hidden files are
+favicon.ico           # hard-linked into the output verbatim
+.B birds/               \fR# an album
+.B   _gallery.yaml      \fR#   per-album metadata (see below)
+.B   heron01.jpg        \fR#   source image
+.B   heron01.md         \fR#   caption + frontmatter (see below)
+.B   heron02.jpg
+.B   heron02.md
+.B   ...
+.B 2017/                \fR# albums may be nested arbitrarily
+.B   07/sunflowers/
+.B     _gallery.yaml
+.B     ...
+.fi
+.RE
+.PP
+Subdirectories whose names begin with
+.B .
+or
+.B _
+are skipped during the walk (so
+.BR _site/ ,
+.BR .git/ ,
+.BR .venv/ ,
+and similar do not get ingested).
+.SS Albums
+A directory becomes an album by virtue of containing a
+.B _gallery.yaml
+file. The album's
+.B _gallery.yaml
+is a flat YAML map with these keys:
+.TP
+.B title
+Album title, used for the album's gallery page and feed.
+.TP
+.B image
+.IR (optional) .
+Title of the photo to use as the album's cover on the
+.B /albums/
+index page. If absent, the oldest photo in the album is used.
+.SS Photos
+Each photo in an album is a pair of files: a JPEG and a Markdown sidecar with
+matching base name. The Markdown file begins with a YAML frontmatter block
+delimited by
+.B ---
+fences, followed by the photo's prose caption.
+.PP
+Example
+.BR heron03.md :
+.PP
+.RS 4
+.nf
+---
+title: "Great Blue Heron at sunset"
+date: 2024-09-12T18:42:00\-04:00
+f-stop: f/5.6
+exposure-time: 1/250 sec
+iso: ISO400
+gravity: 60
+---
+
+A great blue heron fishing on the lake.  Patient bird;
+he stood like this for almost an hour.
+
+Lens \- AF-S DX NIKKOR 55-200mm f/4-5.6G VR II @ 200mm on Nikon D5500
+.fi
+.RE
+.PP
+Recognised frontmatter keys:
+.TP
+.B title
+Photo title (required). Shown in the single-photo page header, gallery
+thumbnail captions, and feed entries.
+.TP
+.B date
+ISO 8601 timestamp with timezone (required). Used to sort photos within the
+album (newest first) and to populate the
+.B <time>
+element on the single-photo page.
+.TP
+.BR f-stop ", " exposure-time ", " iso
+Display strings, shown on the single-photo page below the title. Treated as
+opaque text; any formatting is preserved.
+.TP
+.B gravity
+Integer in
+.BR 0\-100 ,
+controlling where the square thumbnail crop is centred along the longer axis.
+.B 50
+centres the crop (default); lower values shift it left/up, higher values
+right/down. Useful when the subject of a landscape photo isn't at dead centre.
+.PP
+The body of the
+.B .md
+file is rendered as Markdown into the single-photo page's
+.B <div id="info">
+and into the Atom feed
+.B <content>
+element. The supported subset is mistune 0.8.4-compatible: paragraphs,
+.BR **bold** ,
+.BR *italic* ,
+inline
+.BR `code` ,
+.BR [text](url) ,
+autolinks
+.BR <http://...> ,
+and hard line breaks (two trailing spaces).
+.
+.SH OUTPUT
+Each run produces a tree under the destination directory:
+.PP
+.RS 4
+.nf
+_site/index.html              # main gallery, all photos sorted by date desc
+_site/2/index.html            # page 2 of the main gallery
+_site/feed/index.xml          # main Atom feed
+_site/albums/index.html       # one cover photo per album
+_site/birds/index.html        # the "birds" album, page 1
+_site/birds/2/index.html      # page 2 of the "birds" album
+_site/birds/feed/index.xml    # per-album Atom feed
+_site/birds/heron03/index.html# single-photo page
+_site/birds/heron03/thumb.jpg # 300\(mu300 gravity-cropped thumbnail
+_site/birds/heron03/preview.jpg# preview (longer side \(<=\fB previewsize\fR)
+_site/birds/heron03.jpg       # hard link to source
+_site/main.css                # hard-linked static assets
+.fi
+.RE
+.PP
+Pagination: gallery page 1 lives at
+.IR album/index.html ;
+subsequent pages live at
+.IR album/N/index.html .
+Feed links and pagination navigation are emitted accordingly.
+.
+.SH EXAMPLES
+.TP
+Generate the site with defaults:
+.B qualbum
+.TP
+Write into a staging directory and rebuild all images:
+.B qualbum \-d /tmp/staging \-\-force
+.TP
+Use a single resize worker (for memory-tight machines or to leave cores free):
+.B qualbum \-j 1
+.
+.SH "EXIT STATUS"
+.TP
+.B 0
+Site generated successfully.
+.TP
+.B 1
+Runtime error during generation (invalid frontmatter, image read/write
+failure, etc.). Diagnostic written to stderr.
+.TP
+.B 2
+Invalid command-line arguments.
+.
+.SH FILES
+.TP
+.B _config.yaml
+Site configuration. See CONFIGURATION.
+.TP
+.B _gallery.html
+HTML template used for paginated gallery pages. The generator targets elements
+by id and class:
+.BR title ,
+.BR #title ,
+.BR #gallery ,
+.BR #prev ,
+.BR #next ,
+.BR .root-href .
+.TP
+.B _single.html
+HTML template used for per-photo pages. Targets
+.BR title ,
+.BR #title ,
+.BR #full ,
+.BR #photo ,
+.BR #prev ,
+.BR #next ,
+.BR .root-href ,
+.BR time ,
+.BR #f-stop ,
+.BR #exposure-time ,
+.BR #iso ,
+.BR #info .
+.TP
+.B _feed.xml
+Atom 1.0 feed template. Targets
+.BR feed ,
+.BR feed\ >\ id ,
+.BR feed\ >\ updated ,
+.BR feed\ link[rel=\(dqself\(dq] ,
+.BR author\ name ,
+.BR title .
+.
+.SH NOTES
+.B qualbum
+processes trusted input. The JPEG decoder (libjpeg-turbo) and YAML subset
+parser do minimal validation; malformed input may cause the generator to
+abort rather than fail gracefully.
+.PP
+Image scaling is gamma-correct: sources are linearised through the IEC
+61966-2-1 sRGB transfer function, downsampled with separable Lanczos-3, and
+re-encoded to sRGB. The placeholder background colour shown while a preview
+loads is the gamma-correct mean of the preview's pixels.
+.
+.SH AUTHORS
+Kelsey Wellons wrote the original Python implementation. This C++23 port was
+contributed under the same project.
