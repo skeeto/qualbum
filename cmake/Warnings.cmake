@@ -26,8 +26,9 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         -Wduplicated-cond
         -Wduplicated-branches
         -Wlogical-op
-        -Wuseless-cast
     )
+    # -Wuseless-cast omitted: fires on int64_t<->long long casts that are
+    # required for -Wconversion compliance on the other LP64/LLP64 platform.
 endif()
 
 if(MSVC)

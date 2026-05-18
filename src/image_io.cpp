@@ -2,6 +2,7 @@
 
 #include "fs_util.hpp"
 
+#include <cassert>
 #include <csetjmp>
 #include <cstdint>
 #include <cstdio>
@@ -14,6 +15,13 @@
 namespace qualbum::image {
 
 namespace {
+
+template <typename To, typename From>
+constexpr To narrow_cast(From v) {
+    auto out = static_cast<To>(v);
+    assert(static_cast<From>(out) == v);
+    return out;
+}
 
 struct ErrorMgr {
     struct jpeg_error_mgr pub;
@@ -81,7 +89,7 @@ RgbImage decode_jpeg_mem(std::span<const std::uint8_t> data) {
     }
 
     jpeg_create_decompress(&cinfo);
-    jpeg_mem_src(&cinfo, data.data(), data.size());
+    jpeg_mem_src(&cinfo, data.data(), narrow_cast<unsigned long>(data.size()));
     jpeg_read_header(&cinfo, TRUE);
     cinfo.out_color_space = JCS_RGB;
     jpeg_start_decompress(&cinfo);
