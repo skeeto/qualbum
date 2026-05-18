@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-project(qualbum LANGUAGES C CXX VERSION 0.1.0)
+project(qualbum LANGUAGES C CXX VERSION 2.0.0)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -60,6 +60,7 @@ endif()
 
 add_executable(qualbum src/main.cpp)
 target_link_libraries(qualbum PRIVATE qualbum_lib)
+target_compile_definitions(qualbum PRIVATE QUALBUM_VERSION="${PROJECT_VERSION}")
 
 if(WIN32)
     target_sources(qualbum PRIVATE src/platform/windows_manifest.rc)

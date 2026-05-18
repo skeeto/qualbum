@@ -23,6 +23,7 @@ void print_help(const char* argv0) {
         "  --jobs N           Resize-worker thread count (default: hardware concurrency)\n"
         "  --force            Rebuild all thumbnails/previews regardless of mtime\n"
         "  --config FILE      Config YAML path (default: _config.yaml)\n"
+        "  --version, -V      Print version and exit\n"
         "  --help, -h         Show this message\n",
         argv0);
 }
@@ -46,6 +47,9 @@ int main(int argc, char** argv) {
         };
         if (a == "-h" || a == "--help") {
             print_help(argv[0]);
+            return 0;
+        } else if (a == "-V" || a == "--version") {
+            std::printf("qualbum %s\n", QUALBUM_VERSION);
             return 0;
         } else if (a == "--destination" || a == "-d") {
             destination_override = needs_arg(a);
